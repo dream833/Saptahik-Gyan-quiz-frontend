@@ -62,7 +62,7 @@ class HomeView extends GetView<HomeController> {
             ),
             ListTile(
               leading: const Icon(Icons.list_alt),
-              title: const Text("Terms of service"),
+              title: const Text("Today's Result"),
               onTap: () {},
             ),
             ListTile(

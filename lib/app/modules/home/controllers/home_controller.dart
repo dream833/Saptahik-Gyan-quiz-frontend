@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:quiz/app/data/config/app_cons.dart';
 import 'package:quiz/app/data/config/function/dio_post.dart';
+import 'package:quiz/app/modules/earning/views/earning_view.dart';
 import 'package:quiz/app/modules/learning/views/learning_view.dart';
 
 class HomeController extends GetxController {
@@ -18,7 +19,9 @@ class HomeController extends GetxController {
   }
 
   void playForEarning() {
-    Get.snackbar("Earning", "");
+    Get.snackbar("Quiz is Ongoing", "");
+    Get.to(() => EarningView());
+
   }
 
   Future<void> fetchUserProfile() async {

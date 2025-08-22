@@ -4,10 +4,14 @@ import '../modules/Question/bindings/question_binding.dart';
 import '../modules/Question/views/question_view.dart';
 import '../modules/SignUp/bindings/sign_up_binding.dart';
 import '../modules/SignUp/views/sign_up_view.dart';
+import '../modules/earning/bindings/earning_binding.dart';
+import '../modules/earning/views/earning_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/learning/bindings/learning_binding.dart';
 import '../modules/learning/views/learning_view.dart';
+import '../modules/livequiz/bindings/livequiz_binding.dart';
+import '../modules/livequiz/views/livequiz_view.dart';
 import '../modules/sign_in/bindings/sign_in_binding.dart';
 import '../modules/sign_in/views/sign_in_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
@@ -64,8 +68,20 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.QUESTION,
-      page: () =>  QuestionView(categoryId: Get.arguments['categoryId'], subCategoryId : Get.arguments['subCategoryId']),
+      page: () => QuestionView(
+          categoryId: Get.arguments['categoryId'],
+          subCategoryId: Get.arguments['subCategoryId']),
       binding: QuestionBinding(),
+    ),
+    GetPage(
+      name: _Paths.EARNING,
+      page: () => const EarningView(),
+      binding: EarningBinding(),
+    ),
+    GetPage(
+      name: _Paths.LIVEQUIZ,
+      page: () =>  LivequizView(),
+      binding: LivequizBinding(),
     ),
   ];
 }

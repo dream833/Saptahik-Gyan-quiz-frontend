@@ -11,6 +11,8 @@ abstract class Routes {
   static const LEARNING = _Paths.LEARNING;
   static const SUBCATEGORY = _Paths.SUBCATEGORY;
   static const QUESTION = _Paths.QUESTION;
+  static const EARNING = _Paths.EARNING;
+  static const LIVEQUIZ = _Paths.LIVEQUIZ;
 }
 
 abstract class _Paths {
@@ -23,4 +25,6 @@ abstract class _Paths {
   static const LEARNING = '/learning';
   static const SUBCATEGORY = '/subcategory';
   static const QUESTION = '/question';
+  static const EARNING = '/earning';
+  static const LIVEQUIZ = '/livequiz';
 }
