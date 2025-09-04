@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quiz/app/data/config/appcolor.dart';
 import 'package:quiz/app/modules/Question/controllers/question_controller.dart';
-
 
 class QuestionView extends StatelessWidget {
   final int categoryId;
@@ -29,17 +30,21 @@ class QuestionView extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Questions')),
+      appBar: AppBar(
+        title: const Text('Questions', textAlign: TextAlign.center),
+        backgroundColor: AppColor.buttonOneColor,
+        centerTitle: true,
+      ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (controller.questions.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
               'No questions found',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 29.w, color: Colors.grey),
             ),
           );
         }
@@ -56,12 +61,22 @@ class QuestionView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 title: Text(
                   q.question,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 33.w),
                 ),
-                subtitle: Text(" ${q.answer}"),
+                subtitle: Text(
+                  " ${q.answer}",
+                  style: TextStyle(
+                    fontSize: 30.w,
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
               ),
             );
           },

@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:quiz/app/data/config/function/dio_get.dart';
 import 'package:quiz/app/data/config/function/dio_post.dart';
 import 'package:quiz/app/data/config/app_cons.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:quiz/app/data/config/appcolor.dart';
 
 class LivequizController extends GetxController {
-  // 🔹 State variables
   var quizList = [].obs;
   var isLoading = false.obs;
   var showQuestions = false.obs;
@@ -14,11 +15,11 @@ class LivequizController extends GetxController {
   var questionList = [].obs;
 
   var currentIndex = 0.obs;
-  var selectedAnswers = <int, String>{}.obs; // {questionId: option}
+  var selectedAnswers = <int, String>{}.obs;
+
   var timer = 0.obs;
   Timer? quizTimer;
 
-  // 🔹 Check if user already attempted
   var isAttempted = false.obs;
 
   @override
@@ -27,8 +28,7 @@ class LivequizController extends GetxController {
     fetchQuizzes();
   }
 
-  // 🔹 Fetch quiz list (POST)
-Future<void> fetchQuizzes() async {
+  Future<void> fetchQuizzes() async {
   try {
     isLoading.value = true;
     final userId = getBox.read("user_id");
@@ -40,11 +40,10 @@ Future<void> fetchQuizzes() async {
 
     final data = response.data;
     if (data["status"] == "success") {
-      // 🔹 Map each quiz and set attempted flag
       quizList.value = (data["quizzes"] as List).map((q) {
         return {
           ...q,
-          "isAttempted": (q["attempted"] ?? 0) == 1,
+          "isAttempted": int.tryParse(q["attempted"].toString()) == 1,
         };
       }).toList();
     } else {
@@ -56,37 +55,44 @@ Future<void> fetchQuizzes() async {
     isLoading.value = false;
   }
 }
-  // 🔹 Fetch questions for a quiz (POST)
-  Future<void> fetchQuestions(int quizId) async {
+  Future<void> fetchQuestions(dynamic quizId) async {
     try {
       isLoading.value = true;
       final userId = getBox.read("user_id");
       if (userId == null) return;
 
+      final qId = int.tryParse(quizId.toString()) ?? 0;
+
       final response = await dioPost(
         endUrl: "/get-live-quiz-questions.php",
-        data: {"quizid": quizId, "user_id": userId},
+        data: {"quizid": qId, "user_id": userId},
       );
 
       final data = response.data;
 
       if (data["status"] == "success") {
+        final attempted = data["quiz"]["attempted"] == 1;
+
+        if (attempted) {
+          // prevent opening attempted quiz
+          Get.snackbar(
+            "Info",
+            "You have already attempted this quiz",
+            backgroundColor: Colors.grey.shade200,
+            colorText: Colors.black87,
+          );
+          return;
+        }
+
         selectedQuiz.value = data["quiz"] ?? {};
         final questions = data["quiz"]?["questions"];
         questionList.value = questions is List ? questions : [questions];
         currentIndex.value = 0;
         selectedAnswers.clear();
+
         startTimer(int.tryParse("${selectedQuiz["timer"] ?? 30}") ?? 30);
         showQuestions.value = true;
         isAttempted.value = false;
-      } else if (data["status"] == "error" &&
-          data["message"]?.contains("already attempted") == true) {
-        // 🔹 User already attempted
-        isAttempted.value = true;
-        showQuestions.value = true;
-        selectedQuiz.value = data["quiz"] ?? {};
-        final questions = data["quiz"]?["questions"];
-        questionList.value = questions is List ? questions : [questions];
       } else {
         selectedQuiz.clear();
         questionList.clear();
@@ -101,7 +107,6 @@ Future<void> fetchQuizzes() async {
     }
   }
 
-  // 🔹 Current question getter
   Map<String, dynamic>? get currentQuestion {
     if (questionList.isNotEmpty && currentIndex.value < questionList.length) {
       return questionList[currentIndex.value] as Map<String, dynamic>;
@@ -109,7 +114,6 @@ Future<void> fetchQuizzes() async {
     return null;
   }
 
-  // 🔹 Timer logic
   void startTimer(int seconds) {
     timer.value = seconds;
     quizTimer?.cancel();
@@ -124,14 +128,13 @@ Future<void> fetchQuizzes() async {
     });
   }
 
-  // 🔹 Select answer
-  void selectAnswer(int questionId, String option) {
-    if (isAttempted.value) return; // prevent selection if already attempted
-    selectedAnswers[questionId] = option;
+  void selectAnswer(dynamic questionId, String option) {
+    final qId = int.tryParse(questionId.toString()) ?? 0;
+    if (isAttempted.value) return;
+    selectedAnswers[qId] = option;
     questionList.refresh();
   }
 
-  // 🔹 Navigation
   void nextQuestion() {
     if (currentIndex.value < questionList.length - 1) currentIndex.value++;
   }
@@ -140,7 +143,6 @@ Future<void> fetchQuizzes() async {
     if (currentIndex.value > 0) currentIndex.value--;
   }
 
-  // 🔹 Submit quiz to API
   Future<void> submitQuiz() async {
     if (isAttempted.value) return;
     try {
@@ -167,14 +169,74 @@ Future<void> fetchQuizzes() async {
 
       if (data["status"] == "success") {
         isAttempted.value = true;
-        Get.defaultDialog(
-          title: "✅ Quiz Submitted",
-          middleText:
-              "Score: ${data['result']['score']}\nTotal Questions: ${data['result']['total_questions']}\nCorrect: ${data['result']['correct_answers']}\nWrong: ${data['result']['wrong_answers']}\nTime: ${data['result']['time_taken']} sec",
-          onConfirm: () {
-            Get.back();
-            backToQuizList();
-          },
+
+        // prettier dialog
+        Get.dialog(
+          Center(
+            child: Container(
+              width: 0.85.sw,
+              padding: EdgeInsets.all(20.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24.r),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.emoji_events,
+                      size: 60.sp, color: Colors.amber.shade700),
+                  SizedBox(height: 16.h),
+                  Text(
+                    "Quiz Submitted!",
+                    style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                        color: AppColor.buttonOneColor),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    "Score: ${data['result']['score']}\n"
+                    "Total Questions: ${data['result']['total_questions']}\n"
+                    "Correct: ${data['result']['correct_answers']}\n"
+                    "Wrong: ${data['result']['wrong_answers']}\n"
+                    "Time: ${data['result']['time_taken']} sec",
+                    style: TextStyle(fontSize: 18.sp, color: Colors.black87),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20.h),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColor.buttonOneColor,
+                        padding: EdgeInsets.symmetric(vertical: 14.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                      ),
+                      onPressed: () {
+                        Get.back();
+                        backToQuizList();
+                      },
+                      child: Text(
+                        "OK",
+                        style:
+                            TextStyle(fontSize: 18.sp, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          barrierDismissible: false,
         );
       } else {
         Get.snackbar("Error", data["message"] ?? "Failed to submit quiz");
@@ -184,7 +246,6 @@ Future<void> fetchQuizzes() async {
     }
   }
 
-  // 🔹 Back to quiz list
   void backToQuizList() {
     quizTimer?.cancel();
     showQuestions.value = false;

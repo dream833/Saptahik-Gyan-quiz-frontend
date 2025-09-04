@@ -18,9 +18,7 @@ class LivequizView extends GetView<LivequizController> {
         backgroundColor: AppColor.buttonOneColor,
         centerTitle: true,
         title: Obx(() => Text(
-              c.showQuestions.value
-                  ? (c.selectedQuiz["title"] ?? "Quiz")
-                  : "Live Quizzes",
+              c.showQuestions.value ? (c.selectedQuiz["title"] ?? "") : "Live Quizzes",
               style: const TextStyle(fontWeight: FontWeight.bold),
             )),
         leading: Obx(() => c.showQuestions.value
@@ -41,7 +39,7 @@ class LivequizView extends GetView<LivequizController> {
             return Center(
               child: Text(
                 "No quizzes available right now.",
-                style: TextStyle(fontSize: 20.w, color: Colors.grey),
+                style: TextStyle(fontSize: 40.w, color: Colors.grey),
               ),
             );
           }
@@ -52,85 +50,68 @@ class LivequizView extends GetView<LivequizController> {
               itemCount: c.quizList.length,
               itemBuilder: (context, index) {
                 final quiz = c.quizList[index];
+                final attempted = quiz["isAttempted"] ?? false;
                 final quizTimer = quiz["timer"] ?? 0;
-                final attempted = quiz["attempted"] == 1;
 
                 return GestureDetector(
-                  onTap: () {
-                    if (attempted) {
-                      Get.snackbar(
-                        "Already Attempted",
-                        "You have already attempted this quiz",
-                        snackPosition: SnackPosition.TOP,
-                        backgroundColor: Colors.redAccent.withOpacity(0.8),
-                        colorText: Colors.white,
-                      );
-                    } else {
-                      c.fetchQuestions(quiz["quiz_id"]);
-                    }
-                  },
+                  onTap: attempted
+                      ? null
+                      : () => c.fetchQuestions(quiz["quiz_id"].toString()),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.symmetric(vertical: 10),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: attempted ? Colors.grey.shade200 : Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: const [
                         BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 4))
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
                       ],
                     ),
-                    child: Column(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
+                        // Title + Timer
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(quiz["title"] ?? "",
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 8),
-                                  Text(quiz["description"] ?? "",
-                                      style: TextStyle(
-                                          fontSize: 14, color: Colors.grey)),
-                                ],
+                            Text(
+                              quiz["title"] ?? "",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: attempted ? Colors.grey : Colors.black,
                               ),
                             ),
-                            Center(
-                              child: Icon(Icons.arrow_forward_ios,
-                                  size: 18, color: AppColor.buttonOneColor),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(Icons.timer,
+                                    size: 16, color: Colors.grey.shade700),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "$quizTimer sec",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Icon(Icons.timer,
-                                size: 16, color: Colors.grey.shade600),
-                            const SizedBox(width: 6),
-                            Text(
-                              "$quizTimer sec",
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade700),
-                            ),
-                            if (attempted) ...[
-                              const SizedBox(width: 12),
-                              const Icon(Icons.lock, size: 16, color: Colors.red),
-                              const SizedBox(width: 4),
-                              const Text(
-                                "Attempted",
-                                style: TextStyle(color: Colors.red, fontSize: 12),
-                              )
-                            ]
-                          ],
-                        ),
+
+                        // Lock or Arrow
+                        attempted
+                            ? const Icon(Icons.lock, color: Colors.red)
+                            : Icon(
+                                Icons.arrow_forward_ios,
+                                size: 18,
+                                color: AppColor.buttonOneColor,
+                              ),
                       ],
                     ),
                   ),
@@ -151,71 +132,42 @@ class LivequizView extends GetView<LivequizController> {
         return SafeArea(
           child: Column(
             children: [
-              // ---------- HEADER ----------
-              Container(
-                padding: const EdgeInsets.all(24),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColor.buttonOneColor, AppColor.buttonTwoColor],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius:
-                      const BorderRadius.vertical(bottom: Radius.circular(32)),
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                        child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(c.selectedQuiz["title"] ?? "",
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 6),
-                        Text(c.selectedQuiz["description"] ?? "",
-                            style:
-                                const TextStyle(color: Colors.white70, fontSize: 14)),
-                        const SizedBox(height: 6),
-                        Text("Date: ${c.selectedQuiz["quiz_date"] ?? ""}",
-                            style:
-                                const TextStyle(color: Colors.white70, fontSize: 12)),
-                      ],
+              // TIMER CIRCLE
+              Padding(
+                padding: EdgeInsets.all(50.sp),
+                child: Obx(() => Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColor.buttonTwoColor,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "${c.timer.value}",
+                        style: TextStyle(
+                          fontSize: 50.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     )),
-                    Obx(() => Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: AppColor.buttonTwoColor,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            "${c.timer.value}s",
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20),
-                          ),
-                        )),
-                  ],
-                ),
               ),
 
-              const SizedBox(height: 20),
-
-              // ---------- QUESTION CARD ----------
+              // QUESTIONS
               Expanded(
                 child: Obx(() {
                   final question = c.currentQuestion;
                   if (question == null) return const SizedBox();
+
+                  final attempted = c.isAttempted.value;
 
                   return ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -225,25 +177,29 @@ class LivequizView extends GetView<LivequizController> {
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(34.sp),
                           boxShadow: const [
                             BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 6,
-                                offset: Offset(0, 4))
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: Offset(0, 4),
+                            ),
                           ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // QUESTION TEXT
                             Text(
-                              "Q${c.currentIndex.value + 1}. ${question["question"]}",
+                              "${c.currentIndex.value + 1}. ${question["question"]}",
                               style: const TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            const SizedBox(height: 24),
+                            SizedBox(height: 8.h),
 
-                            // Options
+                            // OPTIONS
                             ...["A", "B", "C", "D"].map((optKey) {
                               final optionText =
                                   question["option_${optKey.toLowerCase()}"];
@@ -252,8 +208,10 @@ class LivequizView extends GetView<LivequizController> {
                                   optKey;
 
                               return GestureDetector(
-                                onTap: () => c.selectAnswer(
-                                    question["question_id"], optKey),
+                                onTap: attempted
+                                    ? null
+                                    : () => c.selectAnswer(
+                                        question["question_id"], optKey),
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 300),
                                   margin:
@@ -261,22 +219,25 @@ class LivequizView extends GetView<LivequizController> {
                                   padding: const EdgeInsets.all(18),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? AppColor.buttonOneColor.withOpacity(0.2)
+                                        ? AppColor.buttonOneColor
+                                            .withOpacity(0.2)
                                         : Colors.grey.shade100,
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                        color: isSelected
-                                            ? AppColor.buttonOneColor
-                                            : Colors.grey.shade300,
-                                        width: 2),
+                                      color: isSelected
+                                          ? AppColor.buttonOneColor
+                                          : Colors.grey.shade300,
+                                      width: 2,
+                                    ),
                                   ),
                                   child: Text(
                                     "$optKey. $optionText",
                                     style: TextStyle(
-                                        fontSize: 16,
-                                        color: isSelected
-                                            ? AppColor.buttonTwoColor
-                                            : Colors.black87),
+                                      fontSize: 16,
+                                      color: isSelected
+                                          ? AppColor.buttonTwoColor
+                                          : Colors.black87,
+                                    ),
                                   ),
                                 ),
                               );
@@ -301,7 +262,8 @@ class LivequizView extends GetView<LivequizController> {
                             backgroundColor: Colors.grey.shade600,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16)),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                           onPressed: c.previousQuestion,
                           icon: const Icon(Icons.arrow_back),
@@ -315,17 +277,22 @@ class LivequizView extends GetView<LivequizController> {
                           backgroundColor: AppColor.buttonOneColor,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16)),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                         onPressed: c.currentIndex.value < c.questionList.length - 1
                             ? c.nextQuestion
                             : c.submitQuiz,
-                        icon: Icon(c.currentIndex.value < c.questionList.length - 1
-                            ? Icons.navigate_next
-                            : Icons.check),
-                        label: Text(c.currentIndex.value < c.questionList.length - 1
-                            ? "Next"
-                            : "Submit"),
+                        icon: Icon(
+                          c.currentIndex.value < c.questionList.length - 1
+                              ? Icons.navigate_next
+                              : Icons.check,
+                        ),
+                        label: Text(
+                          c.currentIndex.value < c.questionList.length - 1
+                              ? "Next"
+                              : "Submit",
+                        ),
                       ),
                     ),
                   ],

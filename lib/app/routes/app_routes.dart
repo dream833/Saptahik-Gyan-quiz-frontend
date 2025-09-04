@@ -13,6 +13,11 @@ abstract class Routes {
   static const QUESTION = _Paths.QUESTION;
   static const EARNING = _Paths.EARNING;
   static const LIVEQUIZ = _Paths.LIVEQUIZ;
+
+  static const LEADERBOARD = _Paths.LEADERBOARD;
+  static const SPECIAL_QUESTION_LIST = _Paths.SPECIAL_QUESTION_LIST;
+  static const SPECIAL_QUESTION_DETAIL = _Paths.SPECIAL_QUESTION_DETAIL;
+  static const FORGET_PASSWORD = _Paths.FORGET_PASSWORD;
 }
 
 abstract class _Paths {
@@ -27,4 +32,9 @@ abstract class _Paths {
   static const QUESTION = '/question';
   static const EARNING = '/earning';
   static const LIVEQUIZ = '/livequiz';
+
+  static const LEADERBOARD = '/leaderboard';
+  static const SPECIAL_QUESTION_LIST = '/special-question-list';
+  static const SPECIAL_QUESTION_DETAIL = '/special-question-detail';
+  static const FORGET_PASSWORD = '/forget-password';
 }

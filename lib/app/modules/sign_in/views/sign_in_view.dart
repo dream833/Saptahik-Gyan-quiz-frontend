@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quiz/app/data/config/appcolor.dart';
+import 'package:quiz/app/modules/ForgetPassword/views/forget_password_view.dart';
 import 'package:quiz/app/modules/SignUp/views/sign_up_view.dart';
 import 'package:quiz/app/modules/sign_in/controllers/sign_in_controller.dart';
-
+// 🔹 Forget Password Page
 
 class SignInView extends StatelessWidget {
   const SignInView({super.key});
@@ -28,13 +30,17 @@ class SignInView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Text(
+                    "Welcome back",
+                    style: GoogleFonts.pacifico(
+                      textStyle: TextStyle(
+                        fontSize: 32.sp,
+                        letterSpacing: 1.5,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 10.h),
-                  Text("WELCOME BACK",
-                      style: TextStyle(
-                          fontSize: 16.sp,
-                          letterSpacing: 1.5,
-                          color: Colors.black87)),
-                  SizedBox(height: 5.h),
                   Text(
                     "SIGN IN",
                     textAlign: TextAlign.center,
@@ -44,23 +50,39 @@ class SignInView extends StatelessWidget {
                         letterSpacing: 1.2.sp,
                         color: const Color(0xFF2E3A59)),
                   ),
-                  const SizedBox(height: 30),
+            SizedBox(height: 30.h),
 
-     
+                  // 🔹 TextFields
                   _buildTextField(controller.mobileController, "Mobile no.", Icons.phone),
                   _buildTextField(controller.passwordController, "Password", Icons.lock, obscureText: true),
-                  const SizedBox(height: 30),
 
+                 
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () => Get.to(() => const ForgetPasswordView ()),
+                      child: Text(
+                        "Forgot Password?",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 26.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // 🔹 Sign In Button
                   _buildButton(
                     text: "SIGN IN",
                     color: AppColor.buttonTwoColor,
-                    onTap: controller.signIn
-                    
+                    onTap: controller.signIn,
                   ),
 
                   SizedBox(height: 20.h),
 
-               
+                  // 🔹 Sign Up Link
                   GestureDetector(
                     onTap: () => Get.to(() => const SignUpView()),
                     child: RichText(
@@ -94,7 +116,7 @@ class SignInView extends StatelessWidget {
       TextEditingController controller, String hint, IconData icon,
       {bool obscureText = false}) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 26.sp),
+      padding: EdgeInsets.only(bottom: 20.sp),
       child: TextField(
         controller: controller,
         obscureText: obscureText,

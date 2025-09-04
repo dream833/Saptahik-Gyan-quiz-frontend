@@ -19,7 +19,7 @@ class HomeController extends GetxController {
   }
 
   void playForEarning() {
-    Get.snackbar("Quiz is Ongoing", "");
+    // Get.snackbar("", "");
     Get.to(() => EarningView());
 
   }

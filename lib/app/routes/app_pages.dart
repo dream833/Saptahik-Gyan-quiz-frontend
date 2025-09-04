@@ -1,9 +1,17 @@
 import 'package:get/get.dart';
 
+import '../modules/ForgetPassword/bindings/forget_password_binding.dart';
+import '../modules/ForgetPassword/views/forget_password_view.dart';
+import '../modules/Leaderboard/bindings/leaderboard_binding.dart';
+import '../modules/Leaderboard/views/leaderboard_view.dart';
 import '../modules/Question/bindings/question_binding.dart';
 import '../modules/Question/views/question_view.dart';
 import '../modules/SignUp/bindings/sign_up_binding.dart';
 import '../modules/SignUp/views/sign_up_view.dart';
+import '../modules/SpecialQuestionDetail/bindings/special_question_detail_binding.dart';
+import '../modules/SpecialQuestionDetail/views/special_question_detail_view.dart';
+import '../modules/SpecialQuestionList/bindings/special_question_list_binding.dart';
+import '../modules/SpecialQuestionList/views/special_question_list_view.dart';
 import '../modules/earning/bindings/earning_binding.dart';
 import '../modules/earning/views/earning_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -80,8 +88,30 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.LIVEQUIZ,
-      page: () =>  LivequizView(),
+      page: () => LivequizView(),
       binding: LivequizBinding(),
+    ),
+    GetPage(
+      name: _Paths.LEADERBOARD,
+      page: () => LeaderboardView(
+        selectedDate: '',
+      ),
+      binding: LeaderboardBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPECIAL_QUESTION_LIST,
+      page: () => const SpecialQuestionListView(),
+      binding: SpecialQuestionListBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPECIAL_QUESTION_DETAIL,
+      page: () => SpecialQuestionDetailView(),
+      binding: SpecialQuestionDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.FORGET_PASSWORD,
+      page: () => const ForgetPasswordView(),
+      binding: ForgetPasswordBinding(),
     ),
   ];
 }

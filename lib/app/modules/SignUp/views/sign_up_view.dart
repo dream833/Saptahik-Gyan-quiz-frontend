@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quiz/app/data/config/appcolor.dart';
 import 'package:quiz/app/modules/SignUp/controllers/sign_up_controller.dart';
 import 'package:quiz/app/modules/sign_in/controllers/sign_in_controller.dart';
@@ -24,42 +25,71 @@ class SignUpView extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.only(top: 10.h),
+              padding: EdgeInsets.only(top: 8.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 10.h),
-                  Text("WELCOME TO",
-                      style: TextStyle(
-                          fontSize: 16.sp,
-                          letterSpacing: 1.5,
-                          color: Colors.black87)),
+                
+                  Text(
+                    "Welcome to",
+                    style: GoogleFonts.pacifico(
+                      textStyle: TextStyle(
+                        fontSize: 30.sp,
+                        letterSpacing: 1.5,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 5.h),
                   Text(
-                    "DAILY QUIZ\nAND GK",
+                    "Daily Bengali Quiz & G.K ",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 42.sp,
+                    style: GoogleFonts.getFont(
+                      "Cairo Play",
+                      textStyle: TextStyle(
+                        fontSize: 50.sp,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.2.sp,
-                        color: const Color(0xFF2E3A59)),
+                        color: const Color(0xFF2E3A59),
+                      ),
+                    ),
                   ),
                   SizedBox(height: 8.h),
-                  Text("LEARNING WITH EARNING",
-                      style: TextStyle(
-                          fontSize: 20.sp,
-                          letterSpacing: 1.2,
-                          color: const Color(0xFF2E3A59))),
+
+                  Text(
+                    "জ্ঞান যেখানে প্রতিদিন নতুন",
+                    style: GoogleFonts.tiroBangla(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 37.sp,
+                      letterSpacing: 1.1,
+                      color: const Color(0xFF2E3A59),
+                    ),
+                  ),
                   const SizedBox(height: 30),
 
-            
-                  _buildTextField(controller.nameController, "Name", Icons.person),
-                  _buildTextField(controller.emailController, "Email address", Icons.email),
-                  _buildTextField(controller.mobileController, "Mobile no.", Icons.phone),
-                  _buildTextField(controller.passwordController, "Password", Icons.lock, obscureText: true),
+                  _buildTextField(
+                    controller.nameController,
+                    "Name",
+                    Icons.person,
+                  ),
+                  _buildTextField(
+                    controller.emailController,
+                    "Email address",
+                    Icons.email,
+                  ),
+                  _buildTextField(
+                    controller.mobileController,
+                    "Mobile no.",
+                    Icons.phone,
+                  ),
+                  _buildTextField(
+                    controller.passwordController,
+                    "Password",
+                    Icons.lock,
+                    obscureText: true,
+                  ),
                   const SizedBox(height: 30),
 
-          
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -71,7 +101,7 @@ class SignUpView extends StatelessWidget {
                       _buildButton(
                         text: "SIGN IN",
                         color: AppColor.buttonTwoColor,
-                        onTap: (){
+                        onTap: () {
                           Get.to(((SignInView())));
                         },
                       ),
@@ -87,10 +117,12 @@ class SignUpView extends StatelessWidget {
     );
   }
 
-  
   Widget _buildTextField(
-      TextEditingController controller, String hint, IconData icon,
-      {bool obscureText = false}) {
+    TextEditingController controller,
+    String hint,
+    IconData icon, {
+    bool obscureText = false,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 26.sp),
       child: TextField(
@@ -101,7 +133,10 @@ class SignUpView extends StatelessWidget {
           hintText: hint,
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 18,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.sp),
             borderSide: BorderSide.none,

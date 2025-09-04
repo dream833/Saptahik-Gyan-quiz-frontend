@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quiz/app/data/config/appcolor.dart';
 import 'package:quiz/app/modules/Question/views/question_view.dart';
 import 'package:quiz/app/modules/subcategory/controllers/subcategory_controller.dart';
 
@@ -23,7 +24,9 @@ class SubCategoryPage extends StatelessWidget {
     });
 
     return Scaffold(
+         backgroundColor: AppColor.backgroundColor,
       appBar: AppBar(
+        backgroundColor: AppColor.buttonOneColor,
         title: Text(
           categoryName,
           style: TextStyle(fontSize: 45.sp, fontWeight: FontWeight.w600),

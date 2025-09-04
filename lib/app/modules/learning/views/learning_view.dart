@@ -15,7 +15,7 @@ class LearningView extends GetView<LearningController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppColor.backgroundColor,
+        backgroundColor: AppColor.buttonOneColor,
         toolbarHeight: 15.0.h,
       ),
       body: Container(
@@ -39,14 +39,14 @@ class LearningView extends GetView<LearningController> {
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.buttonOneColor,
+                    backgroundColor: AppColor.buttonTwoColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.r),
                     ),
                     minimumSize: Size(Get.width / .4, 40.h),
                   ),
                   child: Text(
-                    'Daily G.K',
+                    'Current Affairs & G.K',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
