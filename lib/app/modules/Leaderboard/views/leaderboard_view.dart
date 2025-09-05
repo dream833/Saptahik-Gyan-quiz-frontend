@@ -14,9 +14,12 @@ class LeaderboardView extends StatelessWidget {
     controller.fetchQuizzes(selectedDate);
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text("🏆 Leaderboard"),
         backgroundColor: AppColor.buttonOneColor,
+        centerTitle: true,
+        elevation: 0,
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -26,14 +29,25 @@ class LeaderboardView extends StatelessWidget {
         // Step 1: show quizzes
         if (controller.quizzes.isNotEmpty && controller.leaderboard.isEmpty) {
           return ListView.builder(
+            padding: const EdgeInsets.all(16),
             itemCount: controller.quizzes.length,
-            padding: const EdgeInsets.all(12),
             itemBuilder: (context, index) {
               final quiz = controller.quizzes[index];
               return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 3,
+                margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
-                  title: Text(quiz["title"]),
-                  trailing: const Icon(Icons.arrow_forward_ios),
+                  title: Text(
+                    quiz["title"],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 18),
                   onTap: () {
                     controller.fetchLeaderboard(
                         selectedDate, int.parse(quiz["quiz_id"]));
@@ -44,29 +58,89 @@ class LeaderboardView extends StatelessWidget {
           );
         }
 
-        // Step 2: show leaderboard
+        // Step 2: show leaderboard table
         if (controller.leaderboard.isNotEmpty) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text("Rank")),
-                DataColumn(label: Text("Name")),
-                DataColumn(label: Text("Score")),
-                DataColumn(label: Text("Correct")),
-                DataColumn(label: Text("Wrong")),
-                DataColumn(label: Text("Time")),
-              ],
-              rows: controller.leaderboard.map<DataRow>((player) {
-                return DataRow(cells: [
-                  DataCell(Text("#${player["rank"]}")),
-                  DataCell(Text(player["name"])),
-                  DataCell(Text(player["score"])),
-                  DataCell(Text(player["correct_answers"])),
-                  DataCell(Text(player["wrong_answers"])),
-                  DataCell(Text("${player["time_taken"]}s")),
-                ]);
-              }).toList(),
+          return Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: DataTable(
+                headingRowHeight: 50,
+                dataRowHeight: 60,
+                columnSpacing: 24,
+                headingRowColor: MaterialStateProperty.all(
+                  AppColor.buttonOneColor.withOpacity(0.9),
+                ),
+                headingTextStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+                dataTextStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                dividerThickness: 0.5,
+                showBottomBorder: true,
+                columns: const [
+                  DataColumn(label: Text("Rank")),
+                  DataColumn(label: Text("Name")),
+                  DataColumn(label: Text("Score")),
+                  DataColumn(label: Text("Time")),
+                ],
+                rows: List.generate(controller.leaderboard.length, (index) {
+                  final player = controller.leaderboard[index];
+                  int rank = int.tryParse(player["rank"].toString()) ?? 0;
+
+                  // rank color logic
+                  Color rankColor;
+                  if (rank == 1) {
+                    rankColor = Colors.amber;
+                  } else if (rank == 2) {
+                    rankColor = Colors.grey;
+                  } else if (rank == 3) {
+                    rankColor = Colors.brown;
+                  } else {
+                    rankColor = AppColor.buttonOneColor;
+                  }
+
+                  return DataRow(
+                    color: MaterialStateProperty.all(
+                      index.isEven ? Colors.grey[50] : Colors.white,
+                    ),
+                    cells: [
+                      DataCell(
+                        Text(
+                          "#$rank",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: rankColor,
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Text(
+                          player["name"],
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      DataCell(Text(player["score"].toString())),
+                      DataCell(Text("${player["time_taken"]}s")),
+                    ],
+                  );
+                }),
+              ),
             ),
           );
         }

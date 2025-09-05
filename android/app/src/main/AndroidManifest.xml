@@ -1,8 +1,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Internet permission -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Queries must be outside <application> -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:scheme="https"/>
+        </intent>
+    </queries>
+
     <application
-        android:label="quiz"
+        android:label="Daily Quiz &amp; G.K"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
@@ -16,33 +32,21 @@
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
 
+            <!-- Normal theme -->
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
+            <!-- Launcher intent -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
+        <!-- Flutter embedding -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-
- 
-    <queries>
-  
-        <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
-        </intent>
-
-        <intent>
-            <action android:name="android.intent.action.VIEW"/>
-            <category android:name="android.intent.category.BROWSABLE"/>
-            <data android:scheme="https"/>
-        </intent>
-    </queries>
 </manifest>

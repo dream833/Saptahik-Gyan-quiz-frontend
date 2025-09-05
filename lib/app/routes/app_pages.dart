@@ -4,6 +4,8 @@ import '../modules/ForgetPassword/bindings/forget_password_binding.dart';
 import '../modules/ForgetPassword/views/forget_password_view.dart';
 import '../modules/Leaderboard/bindings/leaderboard_binding.dart';
 import '../modules/Leaderboard/views/leaderboard_view.dart';
+import '../modules/PreviousQuiz/bindings/previous_quiz_binding.dart';
+import '../modules/PreviousQuiz/views/previous_quiz_view.dart';
 import '../modules/Question/bindings/question_binding.dart';
 import '../modules/Question/views/question_view.dart';
 import '../modules/SignUp/bindings/sign_up_binding.dart';
@@ -33,7 +35,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.SIGN_IN;
+  static const INITIAL = Routes.SIGN_UP;
 
   static final routes = [
     GetPage(
@@ -112,6 +114,11 @@ class AppPages {
       name: _Paths.FORGET_PASSWORD,
       page: () => const ForgetPasswordView(),
       binding: ForgetPasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.PREVIOUS_QUIZ,
+      page: () => PreviousQuizView(),
+      binding: PreviousQuizBinding(),
     ),
   ];
 }

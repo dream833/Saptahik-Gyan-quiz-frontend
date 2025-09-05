@@ -18,6 +18,7 @@ abstract class Routes {
   static const SPECIAL_QUESTION_LIST = _Paths.SPECIAL_QUESTION_LIST;
   static const SPECIAL_QUESTION_DETAIL = _Paths.SPECIAL_QUESTION_DETAIL;
   static const FORGET_PASSWORD = _Paths.FORGET_PASSWORD;
+  static const PREVIOUS_QUIZ = _Paths.PREVIOUS_QUIZ;
 }
 
 abstract class _Paths {
@@ -37,4 +38,5 @@ abstract class _Paths {
   static const SPECIAL_QUESTION_LIST = '/special-question-list';
   static const SPECIAL_QUESTION_DETAIL = '/special-question-detail';
   static const FORGET_PASSWORD = '/forget-password';
+  static const PREVIOUS_QUIZ = '/previous-quiz';
 }
