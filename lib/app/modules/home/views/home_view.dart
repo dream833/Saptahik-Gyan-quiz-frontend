@@ -52,7 +52,7 @@ class HomeView extends GetView<HomeController> {
                   "yyyy-MM-dd",
                 ).format(DateTime.now().subtract(const Duration(days: 1)));
 
-                Get.to(() => LeaderboardView(selectedDate: fixedDate));
+                Get.to(() => LeaderboardView(selectedDate: yesterday));
               },
             ),
 

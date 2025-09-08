@@ -11,7 +11,7 @@ class PreviousQuizView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppColor.backgroundColor,
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
@@ -26,7 +26,7 @@ class PreviousQuizView extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        // 🔹 If a quiz is selected → show questions only
+       
         if (c.selectedQuiz.isNotEmpty) {
           return ListView.builder(
             padding: const EdgeInsets.all(16),

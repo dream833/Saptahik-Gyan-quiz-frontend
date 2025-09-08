@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get/get_utils/src/platform/platform.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:quiz/app/routes/app_pages.dart';
+
+
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,6 +15,12 @@ void main() async {
 
   final box = GetStorage();
   final isLoggedIn = box.read('IS_USER_LOGGED_IN') ?? false;
+
+
+  if (!GetPlatform.isAndroid && !GetPlatform.isIOS) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
 
   runApp(MyApp(isLoggedIn: isLoggedIn));
 }

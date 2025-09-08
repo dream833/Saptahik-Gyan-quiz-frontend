@@ -82,7 +82,7 @@ class EarningView extends GetView<EarningController> {
                   Get.to(() => LeaderboardView(selectedDate: yesterday));
                     }, 
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.buttonOneColor,
+                      backgroundColor: Colors.green[900],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.r),
                       ),

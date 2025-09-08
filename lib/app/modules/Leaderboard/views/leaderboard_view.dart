@@ -14,7 +14,7 @@ class LeaderboardView extends StatelessWidget {
     controller.fetchQuizzes(selectedDate);
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+   backgroundColor: AppColor.backgroundColor,
       appBar: AppBar(
         title: const Text("🏆 Leaderboard"),
         backgroundColor: AppColor.buttonOneColor,
@@ -79,8 +79,8 @@ class LeaderboardView extends StatelessWidget {
                 headingRowHeight: 50,
                 dataRowHeight: 60,
                 columnSpacing: 24,
-                headingRowColor: MaterialStateProperty.all(
-                  AppColor.buttonOneColor.withOpacity(0.9),
+                headingRowColor: WidgetStateProperty.all(
+                  AppColor.buttonTwoColor.withOpacity(0.9),
                 ),
                 headingTextStyle: const TextStyle(
                   fontWeight: FontWeight.bold,
@@ -106,7 +106,7 @@ class LeaderboardView extends StatelessWidget {
                   // rank color logic
                   Color rankColor;
                   if (rank == 1) {
-                    rankColor = Colors.amber;
+                    rankColor = Colors.green;
                   } else if (rank == 2) {
                     rankColor = Colors.grey;
                   } else if (rank == 3) {
@@ -116,7 +116,7 @@ class LeaderboardView extends StatelessWidget {
                   }
 
                   return DataRow(
-                    color: MaterialStateProperty.all(
+                    color: WidgetStateProperty.all(
                       index.isEven ? Colors.grey[50] : Colors.white,
                     ),
                     cells: [

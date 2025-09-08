@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:quiz/app/data/config/appcolor.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:shimmer/shimmer.dart';
-
 import '../controllers/learning_controller.dart';
 
 class LearningView extends GetView<LearningController> {
@@ -12,7 +9,7 @@ class LearningView extends GetView<LearningController> {
   @override
   final LearningController controller = Get.put(LearningController());
 
-  final String defaultImageUrl = 'assets/images/defaultimage.png';
+  final String defaultImageUrl = 'assets/images/defaultimage.png'; 
 
   @override
   Widget build(BuildContext context) {
@@ -108,26 +105,19 @@ class LearningView extends GetView<LearningController> {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(15.r),
                                   child: imageUrl.isNotEmpty
-                                      ? CachedNetworkImage(
-                                          imageUrl: imageUrl,
+                                      ? Image.network(
+                                          imageUrl,
                                           height: 30.h,
                                           width: 400.w,
                                           fit: BoxFit.cover,
-                                          placeholder: (context, url) => Shimmer.fromColors(
-                                            baseColor: Colors.grey[300]!,
-                                            highlightColor: Colors.grey[100]!,
-                                            child: Container(
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Image.asset(
+                                              defaultImageUrl,
                                               height: 30.h,
                                               width: 400.w,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          errorWidget: (context, url, error) => Image.asset(
-                                            defaultImageUrl,
-                                            height: 30.h,
-                                            width: 400.w,
-                                            fit: BoxFit.cover,
-                                          ),
+                                              fit: BoxFit.cover,
+                                            );
+                                          },
                                         )
                                       : Image.asset(
                                           defaultImageUrl,
@@ -164,4 +154,4 @@ class LearningView extends GetView<LearningController> {
       ),
     );
   }
-}
+} 

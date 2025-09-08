@@ -42,7 +42,7 @@ class SubCategoryPage extends StatelessWidget {
           return Center(
             child: Text(
               "No subcategories found",
-              style: TextStyle(fontSize: 20.sp, color: Colors.grey),
+              style: TextStyle(fontSize: 60.sp, color: Colors.grey),
             ),
           );
         }

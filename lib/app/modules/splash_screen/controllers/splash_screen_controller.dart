@@ -1,23 +1,23 @@
+import 'dart:async';
 import 'package:get/get.dart';
+import 'package:quiz/app/modules/SignUp/views/sign_up_view.dart';
+import 'package:quiz/app/modules/home/views/home_view.dart'; // যদি HomeView আলready থাকে
 
 class SplashScreenController extends GetxController {
-  //TODO: Implement SplashScreenController
+  final RxBool showText = false.obs;
 
-  final count = 0.obs;
   @override
   void onInit() {
     super.onInit();
-  }
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
+    Future.delayed(const Duration(milliseconds: 800), () {
+      showText.value = true;
+    });
 
-  void increment() => count.value++;
+    Future.delayed(const Duration(seconds: 4), () {
+    
+      Get.offAll(() => const SignUpView());
+    });
+  }
 }

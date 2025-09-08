@@ -17,8 +17,8 @@
         </intent>
     </queries>
 
-    <application
-        android:label="Daily Quiz &amp; G.K"
+    <application 
+        android:label="Daily Bengali Quiz &amp;GK"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
