@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:quiz/app/modules/home/controllers/home_controller.dart';
 import 'package:quiz/app/routes/app_pages.dart';
 
 
@@ -15,6 +18,7 @@ void main() async {
 
   final box = GetStorage();
   final isLoggedIn = box.read('IS_USER_LOGGED_IN') ?? false;
+
 
 
   if (!GetPlatform.isAndroid && !GetPlatform.isIOS) {

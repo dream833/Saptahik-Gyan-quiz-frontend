@@ -35,10 +35,31 @@ class HomeView extends GetView<HomeController> {
                 backgroundColor: Colors.white,
                 child: Icon(Icons.person, size: 90.w, color: Colors.brown),
               ),
-              accountName: Text(
-                "Welcome ${controller.userName.value}",
-                style: TextStyle(fontSize: 34.sp, fontWeight: FontWeight.bold),
-              ),
+              accountName: Obx(() {
+                final name = controller.userName.value;
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      name.isNotEmpty ? name : "Welcome...",
+                      style: TextStyle(
+                        fontSize: 34.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (name.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(left: 8.w),
+                        child: Icon(
+                          Icons.check_circle,
+                          color: Colors.blue,
+                          size: 30.w,
+                        ),
+                      ),
+                  ],
+                );
+              }),
               accountEmail: null,
             ),
             ListTile(
@@ -95,7 +116,7 @@ class HomeView extends GetView<HomeController> {
             //     Get.toNamed('/special-question-list');
             //   },
             // ),
-             ListTile(
+            ListTile(
               leading: const Icon(Icons.list_alt),
               title: const Text("Contact-Us"),
               onTap: () {
