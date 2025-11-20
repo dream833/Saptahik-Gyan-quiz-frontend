@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:quiz/app/data/config/appcolor.dart';
 import 'package:quiz/app/modules/Leaderboard/views/leaderboard_view.dart';
+import 'package:quiz/app/modules/aboutus/views/aboutus_view.dart';
 
 import 'package:quiz/app/modules/sign_in/views/sign_in_view.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -101,7 +102,9 @@ class HomeView extends GetView<HomeController> {
             ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text("About US"),
-              onTap: () {},
+              onTap: () {
+                Get.to((AboutusView()));
+              },
             ),
 
             ListTile(

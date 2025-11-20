@@ -14,6 +14,8 @@ import '../modules/SpecialQuestionDetail/bindings/special_question_detail_bindin
 import '../modules/SpecialQuestionDetail/views/special_question_detail_view.dart';
 import '../modules/SpecialQuestionList/bindings/special_question_list_binding.dart';
 import '../modules/SpecialQuestionList/views/special_question_list_view.dart';
+import '../modules/aboutus/bindings/aboutus_binding.dart';
+import '../modules/aboutus/views/aboutus_view.dart';
 import '../modules/earning/bindings/earning_binding.dart';
 import '../modules/earning/views/earning_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -22,6 +24,8 @@ import '../modules/learning/bindings/learning_binding.dart';
 import '../modules/learning/views/learning_view.dart';
 import '../modules/livequiz/bindings/livequiz_binding.dart';
 import '../modules/livequiz/views/livequiz_view.dart';
+import '../modules/privacypolicy/bindings/privacypolicy_binding.dart';
+import '../modules/privacypolicy/views/privacypolicy_view.dart';
 import '../modules/sign_in/bindings/sign_in_binding.dart';
 import '../modules/sign_in/views/sign_in_view.dart';
 import '../modules/splash_screen/bindings/splash_screen_binding.dart';
@@ -119,6 +123,16 @@ class AppPages {
       name: _Paths.PREVIOUS_QUIZ,
       page: () => PreviousQuizView(),
       binding: PreviousQuizBinding(),
+    ),
+    GetPage(
+      name: _Paths.ABOUTUS,
+      page: () => const AboutusView(),
+      binding: AboutusBinding(),
+    ),
+    GetPage(
+      name: _Paths.PRIVACYPOLICY,
+      page: () => const PrivacypolicyView(),
+      binding: PrivacypolicyBinding(),
     ),
   ];
 }
