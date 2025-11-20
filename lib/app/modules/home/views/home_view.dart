@@ -7,6 +7,8 @@ import 'package:lottie/lottie.dart';
 import 'package:quiz/app/data/config/appcolor.dart';
 import 'package:quiz/app/modules/Leaderboard/views/leaderboard_view.dart';
 import 'package:quiz/app/modules/aboutus/views/aboutus_view.dart';
+import 'package:quiz/app/modules/contactus/views/contactus_view.dart';
+import 'package:quiz/app/modules/privacypolicy/views/privacypolicy_view.dart';
 
 import 'package:quiz/app/modules/sign_in/views/sign_in_view.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -110,7 +112,9 @@ class HomeView extends GetView<HomeController> {
             ListTile(
               leading: const Icon(Icons.privacy_tip),
               title: const Text("Privacy policy"),
-              onTap: () {},
+              onTap: () {
+                Get.to((PrivacypolicyView()));
+              },
             ),
             // ListTile(
             //   leading: const Icon(Icons.list_alt),
@@ -123,7 +127,7 @@ class HomeView extends GetView<HomeController> {
               leading: const Icon(Icons.list_alt),
               title: const Text("Contact-Us"),
               onTap: () {
-                // Get.toNamed('/special-question-list');
+                Get.to((ContactusView()));
               },
             ),
             ListTile(

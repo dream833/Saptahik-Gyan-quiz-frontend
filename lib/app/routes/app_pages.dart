@@ -16,6 +16,8 @@ import '../modules/SpecialQuestionList/bindings/special_question_list_binding.da
 import '../modules/SpecialQuestionList/views/special_question_list_view.dart';
 import '../modules/aboutus/bindings/aboutus_binding.dart';
 import '../modules/aboutus/views/aboutus_view.dart';
+import '../modules/contactus/bindings/contactus_binding.dart';
+import '../modules/contactus/views/contactus_view.dart';
 import '../modules/earning/bindings/earning_binding.dart';
 import '../modules/earning/views/earning_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -133,6 +135,11 @@ class AppPages {
       name: _Paths.PRIVACYPOLICY,
       page: () => const PrivacypolicyView(),
       binding: PrivacypolicyBinding(),
+    ),
+    GetPage(
+      name: _Paths.CONTACTUS,
+      page: () => const ContactusView(),
+      binding: ContactusBinding(),
     ),
   ];
 }

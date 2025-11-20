@@ -21,6 +21,7 @@ abstract class Routes {
   static const PREVIOUS_QUIZ = _Paths.PREVIOUS_QUIZ;
   static const ABOUTUS = _Paths.ABOUTUS;
   static const PRIVACYPOLICY = _Paths.PRIVACYPOLICY;
+  static const CONTACTUS = _Paths.CONTACTUS;
 }
 
 abstract class _Paths {
@@ -43,4 +44,5 @@ abstract class _Paths {
   static const PREVIOUS_QUIZ = '/previous-quiz';
   static const ABOUTUS = '/aboutus';
   static const PRIVACYPOLICY = '/privacypolicy';
+  static const CONTACTUS = '/contactus';
 }
