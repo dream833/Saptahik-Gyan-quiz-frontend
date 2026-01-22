@@ -28,6 +28,8 @@ import '../modules/learning/bindings/learning_binding.dart';
 import '../modules/learning/views/learning_view.dart';
 import '../modules/livequiz/bindings/livequiz_binding.dart';
 import '../modules/livequiz/views/livequiz_view.dart';
+import '../modules/nointernet/bindings/nointernet_binding.dart';
+import '../modules/nointernet/views/nointernet_view.dart';
 import '../modules/privacypolicy/bindings/privacypolicy_binding.dart';
 import '../modules/privacypolicy/views/privacypolicy_view.dart';
 import '../modules/sign_in/bindings/sign_in_binding.dart';
@@ -86,9 +88,11 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.QUESTION,
-      page: () => QuestionView(
-          categoryId: Get.arguments['categoryId'],
-          subCategoryId: Get.arguments['subCategoryId']),
+      page:
+          () => QuestionView(
+            categoryId: Get.arguments['categoryId'],
+            subCategoryId: Get.arguments['subCategoryId'],
+          ),
       binding: QuestionBinding(),
     ),
     GetPage(
@@ -103,9 +107,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.LEADERBOARD,
-      page: () => LeaderboardView(
-        selectedDate: '',
-      ),
+      page: () => LeaderboardView(selectedDate: ''),
       binding: LeaderboardBinding(),
     ),
     GetPage(
@@ -147,6 +149,11 @@ class AppPages {
       name: _Paths.JOINWITHUS,
       page: () => const JoinwithusView(),
       binding: JoinwithusBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOINTERNET,
+      page: () => NoInternetView(),
+      binding: NointernetBinding(),
     ),
   ];
 }

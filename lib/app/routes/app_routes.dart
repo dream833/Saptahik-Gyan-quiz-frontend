@@ -23,6 +23,7 @@ abstract class Routes {
   static const PRIVACYPOLICY = _Paths.PRIVACYPOLICY;
   static const CONTACTUS = _Paths.CONTACTUS;
   static const JOINWITHUS = _Paths.JOINWITHUS;
+  static const NOINTERNET = _Paths.NOINTERNET;
 }
 
 abstract class _Paths {
@@ -47,4 +48,5 @@ abstract class _Paths {
   static const PRIVACYPOLICY = '/privacypolicy';
   static const CONTACTUS = '/contactus';
   static const JOINWITHUS = '/joinwithus';
+  static const NOINTERNET = '/nointernet';
 }

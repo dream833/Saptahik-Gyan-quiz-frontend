@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import 'package:get/get_navigation/src/root/get_material_app.dart';
-
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 import 'package:quiz/app/routes/app_pages.dart';
+import 'package:quiz/app/modules/nointernet/controllers/nointernet_controller.dart';
+import 'package:quiz/app/modules/nointernet/views/nointernet_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +13,8 @@ void main() async {
 
   final box = GetStorage();
   final isLoggedIn = box.read('IS_USER_LOGGED_IN') ?? false;
+
+  Get.put(NointernetController(), permanent: true);
 
   runApp(MyApp(isLoggedIn: isLoggedIn));
 }
@@ -24,21 +26,34 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<NointernetController>();
+
     return ScreenUtilInit(
       designSize: const Size(690, 360),
       minTextAdapt: true,
       splitScreenMode: true,
-      builder:
-          (context, child) => GetMaterialApp(
-            title: "Quiz",
-            debugShowCheckedModeBanner: false,
-            initialRoute: isLoggedIn ? '/home' : AppPages.INITIAL,
-            getPages: AppPages.routes,
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-              visualDensity: VisualDensity.adaptivePlatformDensity,
-            ),
+      builder: (context, child) {
+        return GetMaterialApp(
+          title: "Quiz",
+          debugShowCheckedModeBanner: false,
+          initialRoute: isLoggedIn ? '/home' : AppPages.INITIAL,
+          getPages: AppPages.routes,
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
+
+          // ✅ ONLY HERE we use Obx (correct usage)
+          builder: (context, widget) {
+            return Obx(() {
+              if (!controller.isConnected.value) {
+                return NoInternetView();
+              }
+              return widget!;
+            });
+          },
+        );
+      },
     );
   }
 }
