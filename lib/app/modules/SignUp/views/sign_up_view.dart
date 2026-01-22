@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quiz/app/data/config/appcolor.dart';
 import 'package:quiz/app/modules/SignUp/controllers/sign_up_controller.dart';
-import 'package:quiz/app/modules/sign_in/controllers/sign_in_controller.dart';
+
 import 'package:quiz/app/modules/sign_in/views/sign_in_view.dart';
 
 class SignUpView extends StatelessWidget {
@@ -81,11 +81,39 @@ class SignUpView extends StatelessWidget {
                     "Mobile no.",
                     Icons.phone,
                   ),
-                  _buildTextField(
-                    controller.passwordController,
-                    "Password",
-                    Icons.lock,
-                    obscureText: true,
+                  Obx(
+                    () => Padding(
+                      padding: EdgeInsets.only(bottom: 26.sp),
+                      child: TextField(
+                        controller: controller.passwordController,
+                        obscureText: controller.isPasswordHidden.value,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.lock),
+                          hintText: "Password",
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 18,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.sp),
+                            borderSide: BorderSide.none,
+                          ),
+
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              controller.isPasswordHidden.value
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                            onPressed: () {
+                              controller.isPasswordHidden.toggle();
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 30),
 

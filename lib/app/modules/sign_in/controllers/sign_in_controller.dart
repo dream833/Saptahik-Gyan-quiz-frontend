@@ -10,6 +10,7 @@ class SignInController extends GetxController {
   var mobileController = TextEditingController();
   final passwordController = TextEditingController();
   var isfiled = true.obs;
+  var ispwshow = true.obs;
 
   Future signIn() async {
     try {

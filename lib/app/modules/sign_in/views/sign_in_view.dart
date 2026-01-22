@@ -59,11 +59,41 @@ class SignInView extends StatelessWidget {
                     "Mobile no.",
                     Icons.phone,
                   ),
-                  _buildTextField(
-                    controller.passwordController,
-                    "Password",
-                    Icons.lock,
-                    obscureText: true,
+
+                  Obx(
+                    () => Padding(
+                      padding: EdgeInsets.only(bottom: 26.sp),
+                      child: TextField(
+                        controller: controller.passwordController,
+                        obscureText: !controller.ispwshow.value,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.lock),
+                          hintText: "Password",
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 18,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.sp),
+                            borderSide: BorderSide.none,
+                          ),
+
+                          // 👁️ Eye icon
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              controller.ispwshow.value
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              controller.ispwshow.toggle();
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
 
                   Align(
