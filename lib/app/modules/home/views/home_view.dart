@@ -54,11 +54,11 @@ class HomeView extends GetView<HomeController> {
                     ),
                     if (name.isNotEmpty)
                       Padding(
-                        padding: EdgeInsets.only(left: 8.w),
+                        padding: EdgeInsets.only(left: 10.w),
                         child: Icon(
                           Icons.check_circle,
-                          color: Colors.blue,
-                          size: 30.w,
+                          color: Colors.white,
+                          size: 40.w,
                         ),
                       ),
                   ],

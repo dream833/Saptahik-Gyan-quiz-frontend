@@ -29,32 +29,35 @@ class LivequizController extends GetxController {
   }
 
   Future<void> fetchQuizzes() async {
-  try {
-    isLoading.value = true;
-    final userId = getBox.read("user_id");
-    if (userId == null) return;
+    try {
+      isLoading.value = true;
+      final userId = getBox.read("user_id");
+      if (userId == null) return;
 
-    final response = await dioPost(endUrl: "/getapp-quiz.php", data: {
-      "user_id": userId,
-    });
+      final response = await dioPost(
+        endUrl: "/getapp-quiz.php",
+        data: {"user_id": userId},
+      );
 
-    final data = response.data;
-    if (data["status"] == "success") {
-      quizList.value = (data["quizzes"] as List).map((q) {
-        return {
-          ...q,
-          "isAttempted": int.tryParse(q["attempted"].toString()) == 1,
-        };
-      }).toList();
-    } else {
+      final data = response.data;
+      if (data["status"] == "success") {
+        quizList.value =
+            (data["quizzes"] as List).map((q) {
+              return {
+                ...q,
+                "isAttempted": int.tryParse(q["attempted"].toString()) == 1,
+              };
+            }).toList();
+      } else {
+        quizList.clear();
+      }
+    } catch (e) {
       quizList.clear();
+    } finally {
+      isLoading.value = false;
     }
-  } catch (e) {
-    quizList.clear();
-  } finally {
-    isLoading.value = false;
   }
-}
+
   Future<void> fetchQuestions(dynamic quizId) async {
     try {
       isLoading.value = true;
@@ -151,9 +154,10 @@ class LivequizController extends GetxController {
       final quizId = selectedQuiz["quiz_id"];
       final userId = getBox.read("user_id");
 
-      final answersPayload = selectedAnswers.entries
-          .map((e) => {"question_id": e.key, "user_answer": e.value})
-          .toList();
+      final answersPayload =
+          selectedAnswers.entries
+              .map((e) => {"question_id": e.key, "user_answer": e.value})
+              .toList();
 
       final response = await dioPost(
         endUrl: "/submit-quiz.php",
@@ -190,15 +194,19 @@ class LivequizController extends GetxController {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.emoji_events,
-                      size: 60.sp, color: Colors.amber.shade700),
+                  Icon(
+                    Icons.emoji_events,
+                    size: 60.sp,
+                    color: Colors.amber.shade700,
+                  ),
                   SizedBox(height: 16.h),
                   Text(
                     "Quiz Submitted!",
                     style: TextStyle(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.bold,
-                        color: AppColor.buttonOneColor),
+                      fontSize: 24.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColor.buttonOneColor,
+                    ),
                   ),
                   SizedBox(height: 12.h),
                   Text(
@@ -221,14 +229,15 @@ class LivequizController extends GetxController {
                           borderRadius: BorderRadius.circular(16.r),
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
+                        await Future.delayed(const Duration(seconds: 2));
+
                         Get.back();
                         backToQuizList();
                       },
                       child: Text(
                         "OK",
-                        style:
-                            TextStyle(fontSize: 18.sp, color: Colors.white),
+                        style: TextStyle(fontSize: 40.sp, color: Colors.white),
                       ),
                     ),
                   ),
