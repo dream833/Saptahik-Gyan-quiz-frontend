@@ -1,13 +1,15 @@
-
-
 import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart' as DIO;
 import 'package:quiz/app/data/config/app_cons.dart';
 
-Future<DIO.Response<dynamic>> dioPost(
-    {bool? isPost, dynamic data, String? endUrl, bool? sendFile}) async {
+Future<DIO.Response<dynamic>> dioPost({
+  bool? isPost,
+  dynamic data,
+  String? endUrl,
+  bool? sendFile,
+}) async {
   var dio = DIO.Dio();
   if (getBox.read(USER_LOGIN) ?? false) {
     dio.options.headers['Authorization'] =
@@ -24,13 +26,14 @@ Future<DIO.Response<dynamic>> dioPost(
       data: data,
       options: DIO.Options(
         validateStatus: (status) => true,
-        sendTimeout: const Duration(milliseconds: 300000),
-        receiveTimeout: const Duration(milliseconds: 300000),
+        sendTimeout: const Duration(seconds: 40),
+        receiveTimeout: const Duration(seconds: 40),
       ),
     );
     isDebugMode.value
         ? log(
-            "\n\n${isPost ?? true ? 'POST:' : 'PUT'} $BASE_URL$endUrl\nSTATUS CODE: ${response.statusCode}\n${jsonEncode(response.data)}\n\n")
+          "\n\n${isPost ?? true ? 'POST:' : 'PUT'} $BASE_URL$endUrl\nSTATUS CODE: ${response.statusCode}\n${jsonEncode(response.data)}\n\n",
+        )
         : null;
 
     return response;
@@ -46,7 +49,8 @@ Future<DIO.Response<dynamic>> dioPost(
     );
     isDebugMode.value
         ? log(
-            "\n\n${isPost ?? true ? 'POST:' : 'PUT'} $BASE_URL$endUrl\nSTATUS CODE: ${response.statusCode}\n${jsonEncode(response.data)}\n\n")
+          "\n\n${isPost ?? true ? 'POST:' : 'PUT'} $BASE_URL$endUrl\nSTATUS CODE: ${response.statusCode}\n${jsonEncode(response.data)}\n\n",
+        )
         : null;
     return response;
   }

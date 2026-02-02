@@ -6,11 +6,13 @@ import 'package:dio/dio.dart' as DIO;
 
 import 'package:quiz/app/data/config/app_cons.dart';
 
-DIO.Dio dio = DIO.Dio(DIO.BaseOptions(
-  baseUrl: BASE_URL,
-  connectTimeout: Duration(milliseconds: 65000), // 65 seconds
-  receiveTimeout: Duration(milliseconds: 120000), // Increased to 120 seconds
-));
+DIO.Dio dio = DIO.Dio(
+  DIO.BaseOptions(
+    baseUrl: BASE_URL,
+    connectTimeout: Duration(milliseconds: 65000), // 65 seconds
+    receiveTimeout: Duration(milliseconds: 120000), // Increased to 120 seconds
+  ),
+);
 
 Future<DIO.Response<dynamic>> dioGet(String endUrl) async {
   print("$BASE_URL$endUrl");
@@ -24,13 +26,13 @@ Future<DIO.Response<dynamic>> dioGet(String endUrl) async {
       "$BASE_URL$endUrl",
       options: DIO.Options(
         validateStatus: (status) => true,
-        sendTimeout: const Duration(milliseconds: 10000),
-        receiveTimeout: const Duration(milliseconds: 20000), // Increased receiveTimeout
+        sendTimeout: const Duration(milliseconds: 25),
+        receiveTimeout: const Duration(seconds: 25), // Increased receiveTimeout
       ),
     );
     if (isDebugMode.value) {
       log(
-        "\n\nGET: $endUrl\nSTATUS CODE: ${response.statusCode}\n${jsonEncode(response.data)}\n\n"
+        "\n\nGET: $endUrl\nSTATUS CODE: ${response.statusCode}\n${jsonEncode(response.data)}\n\n",
       );
     }
     return response;
@@ -50,12 +52,14 @@ Future<DIO.Response<dynamic>> dioUGet(String endUrl) async {
       options: DIO.Options(
         validateStatus: (status) => true,
         sendTimeout: const Duration(milliseconds: 10000),
-        receiveTimeout: const Duration(milliseconds: 20000), // Increased receiveTimeout
+        receiveTimeout: const Duration(
+          milliseconds: 20000,
+        ), // Increased receiveTimeout
       ),
     );
     if (isDebugMode.value) {
       log(
-        "\n\nGET: $endUrl\nSTATUS CODE: ${response.statusCode}\n${jsonEncode(response.data)}\n\n"
+        "\n\nGET: $endUrl\nSTATUS CODE: ${response.statusCode}\n${jsonEncode(response.data)}\n\n",
       );
     }
     return response;
