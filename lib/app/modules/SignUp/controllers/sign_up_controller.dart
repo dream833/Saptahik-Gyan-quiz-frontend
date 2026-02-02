@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:quiz/app/data/config/function/dio_post.dart';
 import 'package:quiz/app/modules/home/views/home_view.dart';
@@ -11,25 +10,32 @@ class SignUpController extends GetxController {
   final emailController = TextEditingController();
   final mobileController = TextEditingController();
   final passwordController = TextEditingController();
+
   var isPasswordHidden = true.obs;
 
-  Future<void> signUp() async {
-    final name = nameController.text;
-    final email = emailController.text;
-    final mobile = mobileController.text;
-    final password = passwordController.text;
+  /// ✅ MUST BE RxBool
+  var isLoading = false.obs;
 
+  Future<void> signUp() async {
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final mobile = mobileController.text.trim();
+    final password = passwordController.text.trim();
+
+    /// VALIDATION
     if (name.isEmpty || email.isEmpty || mobile.isEmpty || password.isEmpty) {
       Get.snackbar("Error", "সব ক্ষেত্র পূরণ করুন");
       return;
-    } else if (mobile.length != 10) {
+    }
+
+    if (mobile.length != 10) {
       Get.snackbar("Error", "মোবাইল নম্বর অবশ্যই ১০ সংখ্যার হতে হবে");
       return;
     }
 
-    Get.snackbar("Success", "Signed up successfully");
-
     try {
+      isLoading.value = true;
+
       final response = await dioPost(
         endUrl: "/signup.php",
         data: {
@@ -40,8 +46,6 @@ class SignUpController extends GetxController {
         },
       );
 
-      log("Signup response: ${response.data}");
-
       if (response.data['message'] == "Signup successful") {
         Get.snackbar(
           "Success",
@@ -51,7 +55,6 @@ class SignUpController extends GetxController {
           colorText: Colors.white,
         );
 
-        // Optional: Redirect to login or home
         Get.offAll(() => const HomeView());
       } else {
         Get.snackbar(
@@ -64,6 +67,7 @@ class SignUpController extends GetxController {
       }
     } catch (e) {
       log("Signup error: $e");
+
       Get.snackbar(
         "Error",
         "কিছু ভুল হয়েছে",
@@ -71,15 +75,17 @@ class SignUpController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+    } finally {
+      isLoading.value = false;
     }
   }
 
   @override
   void onClose() {
-    // nameController.dispose();
-    // emailController.dispose();
-    // mobileController.dispose();
-    // passwordController.dispose();
-    // super.onClose();
+    nameController.dispose();
+    emailController.dispose();
+    mobileController.dispose();
+    passwordController.dispose();
+    super.onClose();
   }
 }
