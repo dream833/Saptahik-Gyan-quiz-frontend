@@ -43,7 +43,6 @@ class MyApp extends StatelessWidget {
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
 
-          // ✅ ONLY HERE we use Obx (correct usage)
           builder: (context, widget) {
             return Obx(() {
               if (!controller.isConnected.value) {

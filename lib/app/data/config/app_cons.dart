@@ -1,8 +1,7 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
@@ -21,19 +20,33 @@ const String USER_OTP = "MY OTP";
 const String FORGOTFIELD = "forgot-feild-data";
 var isDebugMode = true.obs;
 
+// void SHOW_SNACKBAR({int? duration, String? message, bool? isSuccess}) {
+//   final snackbar = GetSnackBar(
+//       icon: Padding(
+//         padding: EdgeInsets.symmetric(horizontal: 5.w),
+//         child: Image(
+//           height: 50.h,
+//           width: 100.w,
+//           fit: BoxFit.contain,
+//           image: AssetImage("AppImage.logo"),
+//         ),
+//       ),
+//       backgroundColor: (isSuccess ?? true) ? Colors.green : Colors.red,
+//       duration: Duration(milliseconds: duration ?? 2500),
+//       message: message ?? "No Message");
+//   Get.showSnackbar(snackbar);
+// }
+
 void SHOW_SNACKBAR({int? duration, String? message, bool? isSuccess}) {
-  final snackbar = GetSnackBar(
-      icon: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5.w),
-        child: Image(
-          height: 50.h,
-          width: 100.w,
-          fit: BoxFit.contain,
-          image: AssetImage("AppImage.logo"),
-        ),
-      ),
-      backgroundColor: (isSuccess ?? true) ? Colors.green : Colors.red,
-      duration: Duration(milliseconds: duration ?? 2500),
-      message: message ?? "No Message");
-  Get.showSnackbar(snackbar);
+  Fluttertoast.cancel();
+
+  Fluttertoast.showToast(
+    msg: message ?? "No Message",
+    toastLength:
+        (duration ?? 2500) > 3000 ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT,
+    gravity: ToastGravity.BOTTOM,
+    backgroundColor: (isSuccess ?? true) ? Colors.green : Colors.red,
+    textColor: Colors.white,
+    fontSize: 14,
+  );
 }
