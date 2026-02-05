@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:dio/dio.dart';
 import 'package:dio/dio.dart' as DIO;
 
 import 'package:quiz/app/data/config/app_cons.dart';
@@ -15,7 +14,6 @@ DIO.Dio dio = DIO.Dio(
 );
 
 Future<DIO.Response<dynamic>> dioGet(String endUrl) async {
-  print("$BASE_URL$endUrl");
   try {
     if (getBox.read(USER_LOGIN) ?? false) {
       dio.options.headers['Authorization'] =

@@ -58,12 +58,9 @@ class SpecialQuestionListView extends StatelessWidget {
             return GestureDetector(
               onTap: () {
                 Get.toNamed(
-  '/special-question-detail',
-  arguments: {
-    'titleId': item.id,
-    'title': item.title,
-  },
-);
+                  '/special-question-detail',
+                  arguments: {'titleId': item.id, 'title': item.title},
+                );
               },
               child: Container(
                 margin: const EdgeInsets.only(bottom: 12),

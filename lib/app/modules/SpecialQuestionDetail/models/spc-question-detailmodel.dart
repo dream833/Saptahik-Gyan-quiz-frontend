@@ -1,3 +1,4 @@
+// ignore: file_names
 class SpecialQuestionDetail {
   final int id;
   final String title;
@@ -14,13 +15,15 @@ class SpecialQuestionDetail {
     final questionsJson = json["questions"] as List? ?? [];
 
     return SpecialQuestionDetail(
-      id: titleJson["id"] != null
-          ? int.tryParse(titleJson["id"].toString()) ?? 0
-          : 0,
+      id:
+          titleJson["id"] != null
+              ? int.tryParse(titleJson["id"].toString()) ?? 0
+              : 0,
       title: titleJson["title"]?.toString() ?? "No Title",
-      questions: questionsJson
-          .map((e) => QuestionItem.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      questions:
+          questionsJson
+              .map((e) => QuestionItem.fromJson(e as Map<String, dynamic>))
+              .toList(),
     );
   }
 }
