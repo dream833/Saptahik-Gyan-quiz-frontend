@@ -35,7 +35,7 @@ var isDebugMode = true.obs;
 //   Get.showSnackbar(snackbar);
 // }
 
-void SHOW_SNACKBAR({int? duration, String? message, bool? isSuccess}) {
+void Showsnackbar({int? duration, String? message, bool? isSuccess}) {
   Fluttertoast.cancel();
 
   Fluttertoast.showToast(

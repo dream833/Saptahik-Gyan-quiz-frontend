@@ -12,11 +12,11 @@ void main() async {
   await GetStorage.init();
 
   final box = GetStorage();
+
   final isLoggedIn = box.read('IS_USER_LOGGED_IN') ?? false;
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 
   Get.put(NointernetController(), permanent: true);
-
-  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {

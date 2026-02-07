@@ -47,33 +47,34 @@ class SignUpController extends GetxController {
       );
 
       if (response.data['message'] == "Signup successful") {
-        Get.snackbar(
-          "Success",
-          "সাইনআপ সফল হয়েছে",
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
+        Get.showSnackbar(
+          GetSnackBar(
+            title: "Error",
+            message: "সব ক্ষেত্র পূরণ করুন",
+            duration: const Duration(seconds: 2),
+          ),
         );
 
         Get.offAll(() => const HomeView());
       } else {
-        Get.snackbar(
-          "Error",
-          response.data['message'] ?? "Signup failed",
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
+        Get.showSnackbar(
+          GetSnackBar(
+            title: "Error",
+            message: response.data['message'] ?? "Signup failed",
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 2),
+          ),
         );
       }
     } catch (e) {
       log("Signup error: $e");
-
-      Get.snackbar(
-        "Error",
-        "কিছু ভুল হয়েছে",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+      Get.showSnackbar(
+        const GetSnackBar(
+          title: "Error",
+          message: "কিছু ভুল হয়েছে",
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
       );
     } finally {
       isLoading.value = false;
