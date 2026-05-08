@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 final getBox = GetStorage();
-var BASE_URL = "https://saptahikgyan.in/admin/api";
+var BASE_URL = "https://saptahikgyan.space/quizadmin/api";
 const String USER_ID = "user_id";
 const String IS_USER_LOGGED_IN = "IS_USER_LOGGED_IN";
 const String USER_TOKEN = "TOKEN";

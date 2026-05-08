@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quiz/app/data/config/function/dio_post.dart';
-import 'package:quiz/app/modules/home/views/home_view.dart';
+
 import 'package:quiz/app/modules/sign_in/views/sign_in_view.dart';
 
 class SignUpController extends GetxController {
@@ -50,8 +50,8 @@ class SignUpController extends GetxController {
       if (response.data['message'] == "Signup successful") {
         Get.showSnackbar(
           GetSnackBar(
-            title: "Error",
-            message: "সব ক্ষেত্র পূরণ করুন",
+            title: "",
+            message: "SignUp Done",
             duration: const Duration(seconds: 2),
           ),
         );
