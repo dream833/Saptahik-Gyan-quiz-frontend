@@ -94,6 +94,7 @@ class SignUpView extends StatelessWidget {
                         controller.mobileController,
                         "Mobile no.",
                         Icons.phone,
+                        maxLength: 10,
                       ),
 
                       /// PASSWORD
@@ -127,37 +128,76 @@ class SignUpView extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 30),
+                      SizedBox(height: 12.h),
 
                       /// BUTTONS
-                      Row(
+                      Column(
                         children: [
-                          /// SIGN UP
+                          /// SIGN UP BUTTON (PREMIUM BIG BUTTON)
                           Obx(
-                            () => _buildButton(
-                              text:
+                            () => SizedBox(
+                              width: double.infinity,
+                              height: 28.h,
+                              child: ElevatedButton(
+                                onPressed:
+                                    controller.isLoading.value
+                                        ? null
+                                        : controller.signUp,
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 6,
+                                  backgroundColor: AppColor.buttonOneColor,
+                                  shadowColor: Colors.brown.withOpacity(0.4),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25.sp),
+                                  ),
+                                ),
+                                child: Text(
                                   controller.isLoading.value
                                       ? "Please wait..."
                                       : "SIGN UP",
-                              color: Colors.brown,
-                              onTap:
-                                  controller.isLoading.value
-                                      ? null
-                                      : controller.signUp,
+                                  style: TextStyle(
+                                    fontSize: 28.sp,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
 
-                          /// SIGN IN
-                          _buildButton(
-                            text: "SIGN IN",
-                            color: AppColor.buttonTwoColor,
-                            onTap: () {
-                              Get.to(SignInView());
-                            },
+                          SizedBox(height: 24.h),
+
+                          /// SIGN IN TEXT
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "You have an account? ",
+                                style: TextStyle(
+                                  fontSize: 25.sp,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+
+                              GestureDetector(
+                                onTap: () {
+                                  Get.to(SignInView());
+                                },
+                                child: Text(
+                                  "Sign in",
+                                  style: TextStyle(
+                                    fontSize: 28.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColor.buttonTwoColor,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-
                       SizedBox(height: 20.h),
                     ],
                   ),
@@ -185,13 +225,16 @@ class SignUpView extends StatelessWidget {
   Widget _buildTextField(
     TextEditingController controller,
     String hint,
-    IconData icon,
-  ) {
+    IconData icon, {
+    int? maxLength,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 26.sp),
       child: TextField(
         controller: controller,
+        maxLength: maxLength,
         decoration: InputDecoration(
+          counterText: "",
           prefixIcon: Icon(icon),
           hintText: hint,
           filled: true,

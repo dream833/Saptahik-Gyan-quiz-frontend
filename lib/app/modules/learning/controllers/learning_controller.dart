@@ -4,19 +4,15 @@ import 'package:quiz/app/data/config/function/dio_post.dart';
 
 import '../views/categorymodel.dart';
 
-
 class LearningController extends GetxController {
-
   RxList<Datum> categories = <Datum>[].obs;
 
-
-
-
   @override
-void onInit() {
-  super.onInit();
-  loadCategories(); 
-}
+  void onInit() {
+    super.onInit();
+    loadCategories();
+  }
+
   Future<void> loadCategories() async {
     categories.value = await fetchCategories();
   }
@@ -27,7 +23,7 @@ void onInit() {
     try {
       final response = await dioPost(
         isPost: false,
-        endUrl: 'https://saptahikgyan.in/admin/api/getcategory.php',
+        endUrl: 'https://saptahikgyan.space/quizadmin/api/getcategory.php',
       );
 
       if (response.statusCode == 200) {
@@ -49,8 +45,9 @@ void onInit() {
 
     return categoryList;
   }
+
   void onCategoryTap(Datum category) {
-  // Use full category data
-  Get.snackbar("Selected", category.name);
-}
+    // Use full category data
+    Get.snackbar("Selected", category.name);
+  }
 }

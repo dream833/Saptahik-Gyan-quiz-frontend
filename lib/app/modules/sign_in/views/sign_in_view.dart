@@ -58,6 +58,7 @@ class SignInView extends StatelessWidget {
                     controller.mobileController,
                     "Mobile no.",
                     Icons.phone,
+                    maxLength: 10,
                   ),
 
                   Obx(
@@ -157,15 +158,19 @@ class SignInView extends StatelessWidget {
   Widget _buildTextField(
     TextEditingController controller,
     String hint,
+
     IconData icon, {
     bool obscureText = false,
+    int? maxLength,
   }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 20.sp),
       child: TextField(
+        maxLength: maxLength,
         controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(
+          counterText: "",
           prefixIcon: Icon(icon),
           hintText: hint,
           filled: true,

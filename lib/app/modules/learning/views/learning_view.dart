@@ -74,7 +74,7 @@ class LearningView extends GetView<LearningController> {
 
                         final String imageUrl =
                             (item.image != null && item.image!.isNotEmpty)
-                                ? "https://saptahikgyan.in/admin/api/${item.image}"
+                                ? "https://saptahikgyan.space/quizadmin/api/${item.image}"
                                 : "";
 
                         return GestureDetector(
