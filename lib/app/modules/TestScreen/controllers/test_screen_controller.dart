@@ -41,10 +41,21 @@ class TestScreenController extends GetxController {
     final args = Get.arguments as Map<String, dynamic>;
     testInfo = args['test'] as MockTestInfo;
     className = args['className'] as String;
-    subjectName = (args['subject'] as AppSubject).name;
 
-    // Load 10 questions
-    questions.value = Question.generateSample();
+    final subjectArg = args['subject'];
+    if (subjectArg is AppSubject) {
+      subjectName = subjectArg.name;
+    } else {
+      subjectName = subjectArg?.toString() ?? '';
+    }
+
+    // Use custom questions if provided, otherwise generate sample
+    final customQuestions = args['questions'] as List<Question>?;
+    if (customQuestions != null && customQuestions.isNotEmpty) {
+      questions.value = customQuestions;
+    } else {
+      questions.value = Question.generateSample();
+    }
     _startTimer();
   }
 

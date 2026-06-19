@@ -36,6 +36,7 @@ class HomeView extends StatelessWidget {
         index: controller.currentIndex.value,
         children: [
           _buildHomeTab(context),
+          _buildSolutionTab(context),
           _buildLiveTestTab(context),
           _buildProfileTab(context),
         ],
@@ -48,42 +49,56 @@ class HomeView extends StatelessWidget {
   // ───────────────────────────────────────────
 
   Widget _buildBottomNav(HomeController controller) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
+    return Obx(
+      () => Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: controller.currentIndex.value,
+          onTap: (index) {
+            if (index == 2) {
+              Get.toNamed('/daily-mock-test');
+            } else {
+              controller.changeTab(index);
+            }
+          },
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: AppColor.cardColor,
+          selectedItemColor: AppColor.buttonOneColor,
+          unselectedItemColor: AppColor.textLight,
+          selectedFontSize: 11.sp,
+          unselectedFontSize: 11.sp,
+          selectedLabelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          unselectedLabelStyle: GoogleFonts.poppins(
+            fontWeight: FontWeight.w400,
           ),
-        ],
-      ),
-      child: BottomNavigationBar(
-        currentIndex: controller.currentIndex.value,
-        onTap: controller.changeTab,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppColor.cardColor,
-        selectedItemColor: AppColor.buttonOneColor,
-        unselectedItemColor: AppColor.textLight,
-        selectedFontSize: 11.sp,
-        unselectedFontSize: 11.sp,
-        selectedLabelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        unselectedLabelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w400),
-        elevation: 0,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.live_tv_rounded),
-            label: 'Solution',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded),
-            label: 'Profile',
-          ),
-        ],
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.lightbulb_rounded),
+              label: 'Solution',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.live_tv_rounded),
+              label: 'Live Test',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_rounded),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -127,7 +142,179 @@ class HomeView extends StatelessWidget {
   }
 
   // ───────────────────────────────────────────
-  //  TAB 1: LIVE MOCK TEST / SOLUTION
+  //  TAB 1: SOLUTION
+  // ───────────────────────────────────────────
+
+  Widget _buildSolutionTab(BuildContext context) {
+    return SafeArea(
+      child: DecorativeBackground(
+        showBottomDecoration: true,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 32.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Header ──
+              SizedBox(height: 8.h),
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(12.r),
+                    decoration: BoxDecoration(
+                      gradient: AppColor.primaryGradient,
+                      borderRadius: BorderRadius.circular(16.r),
+                      boxShadow: [AppColor.buttonShadow],
+                    ),
+                    child: const Icon(
+                      Icons.lightbulb_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                  SizedBox(width: 14.w),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Solution Hub',
+                        style: GoogleFonts.poppins(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppColor.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'Questions, suggestions & previous papers',
+                        style: GoogleFonts.poppins(
+                          fontSize: 11.sp,
+                          color: AppColor.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 24.h),
+
+              // ── Navigation Cards ──
+              _navCard(
+                icon: Icons.quiz_rounded,
+                title: 'Question & Answers',
+                subtitle: '${MockData.qaItems.length} questions with answers',
+                gradientColors: const [Color(0xFFB96237), Color(0xFFD4845A)],
+                onTap: () => Get.toNamed('/question-answer'),
+              ),
+              SizedBox(height: 14.h),
+
+              _navCard(
+                icon: Icons.tips_and_updates_rounded,
+                title: 'Suggestions',
+                subtitle: '${MockData.suggestions.length} study tips & guides',
+                gradientColors: const [Color(0xFF113650), Color(0xFF1A4F72)],
+                onTap: () => Get.toNamed('/suggestion'),
+              ),
+              SizedBox(height: 14.h),
+
+              _navCard(
+                icon: Icons.history_edu_rounded,
+                title: 'Previous Year Questions',
+                subtitle:
+                    '${MockData.previousYearCategories.fold(0, (sum, cat) => sum + cat.years.length)} exam years available',
+                gradientColors: const [Color(0xFF2E7D32), Color(0xFF66BB6A)],
+                onTap: () => Get.toNamed('/previous-year-question'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _navCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required List<Color> gradientColors,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(16.r),
+        decoration: BoxDecoration(
+          color: AppColor.cardColor,
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [AppColor.cardShadow],
+          border: Border.all(color: AppColor.cardBorder),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(12.r),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: gradientColors,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(14.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: gradientColors[0].withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(icon, color: Colors.white, size: 26.sp),
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColor.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.poppins(
+                      fontSize: 10.sp,
+                      color: AppColor.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(8.r),
+              decoration: BoxDecoration(
+                color: AppColor.backgroundColorLight,
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Icon(
+                Icons.arrow_forward_rounded,
+                color: AppColor.textLight,
+                size: 18.sp,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ───────────────────────────────────────────
+  //  TAB 2: LIVE MOCK TEST
   // ───────────────────────────────────────────
 
   Widget _buildLiveTestTab(BuildContext context) {
@@ -414,34 +601,6 @@ class HomeView extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 20.h),
-
-            // Stats row
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: Container(
-                padding: EdgeInsets.all(16.r),
-                decoration: BoxDecoration(
-                  color: AppColor.cardColor,
-                  borderRadius: BorderRadius.circular(20.r),
-                  boxShadow: [AppColor.cardShadow],
-                  border: Border.all(color: AppColor.cardBorder),
-                ),
-                child: Row(
-                  children: [
-                    _statItem(
-                      'Tests',
-                      '${MockData.previousTestRecords.length}',
-                    ),
-                    _statDivider(),
-                    _statItem('Avg Score', '80%'),
-                    _statDivider(),
-                    _statItem('Rank', '--'),
-                  ],
-                ),
-              ),
-            ),
-
             SizedBox(height: 24.h),
 
             // Settings list
@@ -452,22 +611,22 @@ class HomeView extends StatelessWidget {
                   _profileMenuItem(
                     icon: Icons.person_outline_rounded,
                     title: 'Edit Profile',
-                    onTap: () {},
+                    onTap: () => Get.toNamed('/edit-profile'),
                   ),
                   _profileMenuItem(
                     icon: Icons.notifications_outlined,
                     title: 'Notifications',
-                    onTap: () {},
-                  ),
-                  _profileMenuItem(
-                    icon: Icons.settings_outlined,
-                    title: 'Settings',
-                    onTap: () {},
+                    onTap: () => Get.toNamed('/notifications'),
                   ),
                   _profileMenuItem(
                     icon: Icons.info_outline_rounded,
                     title: 'About',
-                    onTap: () {},
+                    onTap: () => Get.toNamed('/about'),
+                  ),
+                  _profileMenuItem(
+                    icon: Icons.description_outlined,
+                    title: 'Terms & Conditions',
+                    onTap: () => Get.toNamed('/terms'),
                   ),
                   _profileMenuItem(
                     icon: Icons.logout_rounded,
@@ -494,35 +653,6 @@ class HomeView extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _statItem(String label, String value) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColor.buttonOneColor,
-            ),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              fontSize: 11.sp,
-              color: AppColor.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _statDivider() {
-    return Container(width: 1, height: 36.h, color: AppColor.cardBorder);
   }
 
   Widget _profileMenuItem({
@@ -646,7 +776,7 @@ class HomeView extends StatelessWidget {
               title: "All Mock Tests",
               onTap: () {
                 Navigator.pop(context);
-                _showComingSoon(context, "All Mock Tests");
+                Get.toNamed('/all-mock-tests');
               },
             ),
             const Spacer(),
@@ -1000,7 +1130,7 @@ class HomeView extends StatelessWidget {
 
         // All Mock Tests
         GestureDetector(
-          onTap: () => _showComingSoon(context, "All Mock Tests"),
+          onTap: () => Get.toNamed('/all-mock-tests'),
           child: Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
