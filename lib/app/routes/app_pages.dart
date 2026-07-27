@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/DailyMockTest/bindings/daily_mock_test_binding.dart';
 import '../modules/DailyMockTest/views/daily_mock_test_view.dart';
+import '../modules/ForgotPassword/bindings/forgot_password_binding.dart';
+import '../modules/ForgotPassword/views/forgot_password_view.dart';
 import '../modules/Home/bindings/home_binding.dart';
 import '../modules/Home/views/home_view.dart';
 import '../modules/Home/views/solution_tabs/question_answer_view.dart';
@@ -92,6 +94,11 @@ class AppPages {
       name: _Paths.ALL_MOCK_TESTS,
       page: () => const AllMockTestView(),
       binding: AllMockTestBinding(),
+    ),
+    GetPage(
+      name: _Paths.FORGOT_PASSWORD,
+      page: () => const ForgotPasswordView(),
+      binding: ForgotPasswordBinding(),
     ),
   ];
 }

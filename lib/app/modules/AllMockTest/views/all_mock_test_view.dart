@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../data/config/appcolor.dart';
 import '../../../data/models/mock_data.dart';
 import '../../../data/widgets/decorative_background.dart';
+import '../../../data/widgets/shimmer_widget.dart';
 import '../controllers/all_mock_test_controller.dart';
 
 class AllMockTestView extends StatelessWidget {
@@ -72,28 +73,39 @@ class _AllMockTestBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = controller;
-    return Obx(() => DecorativeBackground(
-      showBottomDecoration: true,
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 32.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _breadcrumb(c),
-            SizedBox(height: 16.h),
-            if (c.selectedClassId.value == null)
-              _classesGrid(c)
-            else if (c.selectedSubjectId.value == null)
-              _subjectsGrid(c)
-            else if (c.selectedChapterId.value == null)
-              _chaptersList(c)
-            else
-              _setsList(c),
-          ],
+    return Obx(() {
+      if (c.isLoading.value) {
+        return DecorativeBackground(
+          showBottomDecoration: true,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 32.h),
+            child: ShimmerWidget.pageLoader(itemCount: 3, itemHeight: 180),
+          ),
+        );
+      }
+      return DecorativeBackground(
+        showBottomDecoration: true,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(20.w, 8.h, 20.w, 32.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _breadcrumb(c),
+              SizedBox(height: 16.h),
+              if (c.selectedClassId.value == null)
+                _classesGrid(c)
+              else if (c.selectedSubjectId.value == null)
+                _subjectsGrid(c)
+              else if (c.selectedChapterId.value == null)
+                _chaptersList(c)
+              else
+                _setsList(c),
+            ],
+          ),
         ),
-      ),
-    ));
+      );
+    });
   }
 
   // ── Breadcrumb ──
@@ -106,19 +118,19 @@ class _AllMockTestBody extends StatelessWidget {
         if (c.selectedClassId.value != null) ...[
           Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
           _chip(
-            MockData.classList.firstWhere((c2) => c2.id == c.selectedClassId.value).name,
+            c.availableClasses.firstWhere((c2) => c2.id == c.selectedClassId.value).name,
             c.selectedSubjectId.value == null, () => c.resetTo(1), AppColor.buttonOneColor),
         ],
         if (c.selectedSubjectId.value != null) ...[
           Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
           _chip(
-            MockData.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value).name,
+            c.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value).name,
             c.selectedChapterId.value == null, () => c.resetTo(2), AppColor.buttonOneColor),
         ],
         if (c.selectedChapterId.value != null) ...[
           Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
           _chip(
-            MockData.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value).name,
+            c.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value).name,
             false, null, AppColor.buttonOneColor),
         ],
       ]),
@@ -154,21 +166,22 @@ class _AllMockTestBody extends StatelessWidget {
       Text('Select a class to view mock test sets', style: GoogleFonts.poppins(
         fontSize: 13.sp, color: AppColor.textSecondary)),
       SizedBox(height: 20.h),
-      ...List.generate((classes.length + 1) ~/ 2, (ri) {
-        final start = ri * 2;
-        final end = (start + 2).clamp(0, classes.length);
-        final row = classes.sublist(start, end);
-        return Padding(
-          padding: EdgeInsets.only(bottom: 12.h),
-          child: Row(children: row.map((cl) => Expanded(child: _classCard(cl, c))).toList()),
-        );
-      }),
+      if (classes.isEmpty)
+        _emptyState(c, Icons.school_outlined, 'No classes available', 'Check back later for new classes')
+      else
+        ...List.generate((classes.length + 1) ~/ 2, (ri) {
+          final start = ri * 2;
+          final end = (start + 2).clamp(0, classes.length);
+          final row = classes.sublist(start, end);
+          return Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: Row(children: row.map((cl) => Expanded(child: _classCard(cl, c))).toList()),
+          );
+        }),
     ]);
   }
 
   Widget _classCard(AppClass cl, AllMockTestController c) {
-    final subCount = MockData.subjectIdsForClass(cl.id).length;
-    final setCount = MockData.allMockTestSets.where((s) => s.classId == cl.id).length;
     final gradients = [
       const [Color(0xFFB96237), Color(0xFFD4845A)],
       const [Color(0xFF113650), Color(0xFF1A4F72)],
@@ -205,7 +218,7 @@ class _AllMockTestBody extends StatelessWidget {
           SizedBox(height: 10.h),
           Text(cl.name, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.white)),
           SizedBox(height: 2.h),
-          Text('$subCount subjects · $setCount tests', style: GoogleFonts.poppins(fontSize: 10.sp, color: Colors.white70)),
+          Text('Multiple subjects', style: GoogleFonts.poppins(fontSize: 10.sp, color: Colors.white70)),
         ]),
       ),
     );
@@ -214,7 +227,7 @@ class _AllMockTestBody extends StatelessWidget {
   // ── Step 1: Subject Selection ──
 
   Widget _subjectsGrid(AllMockTestController c) {
-    final subjects = c.availableSubjects;
+    final subjects = c.subjects;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         _backBtn(() => c.resetTo(0), AppColor.buttonOneColor),
@@ -222,22 +235,22 @@ class _AllMockTestBody extends StatelessWidget {
         Text('Choose a subject', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppColor.textSecondary)),
       ]),
       SizedBox(height: 12.h),
-      ...List.generate((subjects.length + 1) ~/ 2, (ri) {
-        final start = ri * 2;
-        final end = (start + 2).clamp(0, subjects.length);
-        final row = subjects.sublist(start, end);
-        return Padding(
-          padding: EdgeInsets.only(bottom: 12.h),
-          child: Row(children: row.map((s) => Expanded(child: _subjectCard(s, c))).toList()),
-        );
-      }),
+      if (subjects.isEmpty)
+        _emptyState(c, Icons.book_outlined, 'No subjects available', 'No subjects found for this class')
+      else
+        ...List.generate((subjects.length + 1) ~/ 2, (ri) {
+          final start = ri * 2;
+          final end = (start + 2).clamp(0, subjects.length);
+          final row = subjects.sublist(start, end);
+          return Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: Row(children: row.map((s) => Expanded(child: _subjectCard(s, c))).toList()),
+          );
+        }),
     ]);
   }
 
   Widget _subjectCard(AppSubject s, AllMockTestController c) {
-    final chCount = MockData.chapterIdsForClassSubject(c.selectedClassId.value!, s.id).length;
-    final setCount = MockData.allMockTestSets.where((st) =>
-        st.classId == c.selectedClassId.value && st.subjectId == s.id).length;
     final subjectColors = <Color>[
       const Color(0xFFB96237), const Color(0xFF113650), const Color(0xFF2E7D32),
       const Color(0xFF6A1B9A), const Color(0xFF1565C0), const Color(0xFFE65100),
@@ -269,7 +282,7 @@ class _AllMockTestBody extends StatelessWidget {
           SizedBox(height: 8.h),
           Text(s.name, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
           SizedBox(height: 2.h),
-          Text('$chCount chapters · $setCount sets', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
+          Text('Multiple chapters', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
         ]),
       ),
     );
@@ -278,7 +291,7 @@ class _AllMockTestBody extends StatelessWidget {
   // ── Step 2: Chapter Selection ──
 
   Widget _chaptersList(AllMockTestController c) {
-    final chapters = c.availableChapters;
+    final chapters = c.chapters;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         _backBtn(() => c.resetTo(1), AppColor.buttonOneColor),
@@ -286,48 +299,50 @@ class _AllMockTestBody extends StatelessWidget {
         Text('Choose a chapter', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppColor.textSecondary)),
       ]),
       SizedBox(height: 12.h),
-      ...chapters.map((ch) {
-        final setCount = MockData.setsFor(c.selectedClassId.value!, c.selectedSubjectId.value!, ch.id).length;
-        return GestureDetector(
-          onTap: () => c.selectChapter(ch.id),
-          child: Container(
-            margin: EdgeInsets.only(bottom: 10.h),
-            padding: EdgeInsets.all(16.r),
-            decoration: BoxDecoration(
-              color: AppColor.cardColor,
-              borderRadius: BorderRadius.circular(16.r),
-              boxShadow: [AppColor.softShadow],
-              border: Border.all(color: AppColor.cardBorder),
-            ),
-            child: Row(children: [
-              Container(
-                padding: EdgeInsets.all(10.r),
-                decoration: BoxDecoration(
-                  color: AppColor.buttonOneColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Icon(Icons.book_rounded, color: AppColor.buttonOneColor, size: 22.sp),
+      if (chapters.isEmpty)
+        _emptyState(c, Icons.menu_book_outlined, 'No chapters available', 'No chapters found for this subject')
+      else
+        ...chapters.map((ch) {
+          return GestureDetector(
+            onTap: () => c.selectChapter(ch.id),
+            child: Container(
+              margin: EdgeInsets.only(bottom: 10.h),
+              padding: EdgeInsets.all(16.r),
+              decoration: BoxDecoration(
+                color: AppColor.cardColor,
+                borderRadius: BorderRadius.circular(16.r),
+                boxShadow: [AppColor.softShadow],
+                border: Border.all(color: AppColor.cardBorder),
               ),
-              SizedBox(width: 14.w),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(ch.name, style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
-                SizedBox(height: 2.h),
-                Text('$setCount test sets available', style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColor.textSecondary)),
-              ])),
-              Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 20.sp),
-            ]),
-          ),
-        );
-      }),
+              child: Row(children: [
+                Container(
+                  padding: EdgeInsets.all(10.r),
+                  decoration: BoxDecoration(
+                    color: AppColor.buttonOneColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Icon(Icons.book_rounded, color: AppColor.buttonOneColor, size: 22.sp),
+                ),
+                SizedBox(width: 14.w),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(ch.name, style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
+                  SizedBox(height: 2.h),
+                  Text('Test sets available', style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColor.textSecondary)),
+                ])),
+                Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 20.sp),
+              ]),
+            ),
+          );
+        }),
     ]);
   }
 
   // ── Step 3: Set Selection ──
 
   Widget _setsList(AllMockTestController c) {
-    final sets = c.sets;
-    final sub = MockData.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value);
-    final ch = MockData.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value);
+    final sets = c.testSets;
+    final sub = c.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value);
+    final ch = c.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         _backBtn(() => c.resetTo(2), AppColor.buttonOneColor),
@@ -390,6 +405,45 @@ class _AllMockTestBody extends StatelessWidget {
       SizedBox(width: 4.w),
       Text(label, style: GoogleFonts.poppins(fontSize: 11.sp, fontWeight: FontWeight.w500, color: color)),
     ]);
+  }
+
+  Widget _emptyState(AllMockTestController c, IconData icon, String title, String subtitle) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.only(top: 40.h),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(20.r),
+              decoration: BoxDecoration(
+                color: AppColor.backgroundColorLight,
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Icon(icon, size: 48.sp, color: AppColor.textLight),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColor.textPrimary,
+              ),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              subtitle,
+              style: GoogleFonts.poppins(
+                fontSize: 12.sp,
+                color: AppColor.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _backBtn(VoidCallback onTap, Color color) {

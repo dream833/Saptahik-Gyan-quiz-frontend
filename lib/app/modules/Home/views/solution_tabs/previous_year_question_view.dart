@@ -4,9 +4,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'dart:developer';
+
 import '../../../../data/config/appcolor.dart';
+import '../../../../data/config/app_cons.dart';
+import '../../../../data/function/dio_post.dart';
 import '../../../../data/models/mock_data.dart';
 import '../../../../data/widgets/decorative_background.dart';
+import '../../../../data/widgets/shimmer_widget.dart';
 
 class PreviousYearQuestionView extends StatelessWidget {
   const PreviousYearQuestionView({super.key});
@@ -72,30 +77,144 @@ class PreviousYearQuestionView extends StatelessWidget {
 // ── Controller ──
 
 class _PyqController extends GetxController {
-  final selectedCategory = Rx<PreviousYearCategory?>(null);
+  var isLoading = false.obs;
+
+  // API data
+  var categories = <Map<String, dynamic>>[].obs;
+  var subjects = <AppSubject>[].obs;
+  var pyqItems = <QAItem>[].obs;
+  var pdfUrl = Rx<String?>(null);
+
+  // Selected state
+  final selectedCategory = Rx<String?>(null);
   final selectedYear = Rx<int?>(null);
   final selectedSubjectId = Rx<int?>(null);
 
-  List<AppSubject> get subjectsForYear {
-    final cat = selectedCategory.value;
-    final yr = selectedYear.value;
-    if (cat == null || yr == null) return [];
-    return cat.subjectsForYear(yr);
+  @override
+  void onInit() {
+    super.onInit();
+    fetchCategories();
   }
 
-  List<QAItem> get qaItems {
-    final cat = selectedCategory.value;
-    final yr = selectedYear.value;
-    final subId = selectedSubjectId.value;
-    if (cat == null || yr == null || subId == null) return [];
-    return cat.questionsForSubject(yr, subId);
+  Future<void> fetchCategories() async {
+    try {
+      isLoading.value = true;
+
+      final response = await dioPost(
+        endUrl: "/pyq/categories.php",
+        data: {},
+      );
+
+      if (response.data['data'] != null) {
+        categories.value = (response.data['data'] as List).map((c) {
+          return {
+            'name': c['name'] ?? '',
+            'subtitle': c['subtitle'] ?? '',
+            'years': (c['years'] as List?)?.map((y) => y as int).toList() ?? <int>[],
+          };
+        }).toList();
+      }
+    } catch (e) {
+      log("PYQ fetch categories error: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  int countForSubject(int subjectId) {
+  Future<void> fetchSubjects(String category, int year) async {
+    try {
+      isLoading.value = true;
+
+      final response = await dioPost(
+        endUrl: "/pyq/subjects.php",
+        data: {
+          "category": category,
+          "year": year,
+        },
+      );
+
+      if (response.data['data'] != null) {
+        subjects.value = (response.data['data'] as List).map((s) {
+          return AppSubject(
+            id: s['id'] ?? 0,
+            name: s['name'] ?? '',
+            icon: '📚',
+          );
+        }).toList();
+      }
+    } catch (e) {
+      log("PYQ fetch subjects error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchQuestions(String category, int year, int subjectId) async {
+    try {
+      isLoading.value = true;
+
+      final response = await dioPost(
+        endUrl: "/pyq/questions.php",
+        data: {
+          "category": category,
+          "year": year,
+          "subject_id": subjectId,
+        },
+      );
+
+      if (response.data['data'] != null) {
+        final dataList = response.data['data'] as List;
+        if (dataList.isNotEmpty && dataList.first['pdf_file'] != null) {
+          pdfUrl.value = '${BASE_URL.replaceAll('/Api/app', '/')}${dataList.first['pdf_file']}';
+        }
+
+        // Map to QAItem list for display
+        pyqItems.value = dataList.map((item) {
+          return QAItem(
+            id: item['id'] ?? 0,
+            question: '${item['subject_name'] ?? 'Subject'} - ${item['year'] ?? year}',
+            answer: 'PDF: ${item['pdf_file'] ?? ''}',
+            type: QuestionType.veryShort,
+            subjectId: item['subject_id'] ?? subjectId,
+          );
+        }).toList();
+      }
+    } catch (e) {
+      log("PYQ fetch questions error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  void selectCategory(String name) {
+    selectedCategory.value = name;
+    selectedYear.value = null;
+    selectedSubjectId.value = null;
+    subjects.clear();
+    pyqItems.clear();
+    pdfUrl.value = null;
+  }
+
+  void selectYear(int year) {
+    selectedYear.value = year;
+    selectedSubjectId.value = null;
+    pyqItems.clear();
+    pdfUrl.value = null;
+    final cat = selectedCategory.value;
+    if (cat != null) {
+      fetchSubjects(cat, year);
+    }
+  }
+
+  void selectSubject(int subjectId) {
+    selectedSubjectId.value = subjectId;
+    pyqItems.clear();
+    pdfUrl.value = null;
     final cat = selectedCategory.value;
     final yr = selectedYear.value;
-    if (cat == null || yr == null) return 0;
-    return cat.questionsForSubject(yr, subjectId).length;
+    if (cat != null && yr != null) {
+      fetchQuestions(cat, yr, subjectId);
+    }
   }
 
   void resetTo(int step) {
@@ -103,11 +222,20 @@ class _PyqController extends GetxController {
       selectedCategory.value = null;
       selectedYear.value = null;
       selectedSubjectId.value = null;
+      subjects.clear();
+      pyqItems.clear();
+      pdfUrl.value = null;
+      categories.clear();
+      fetchCategories();
     } else if (step <= 1) {
       selectedYear.value = null;
       selectedSubjectId.value = null;
+      pyqItems.clear();
+      pdfUrl.value = null;
     } else if (step <= 2) {
       selectedSubjectId.value = null;
+      pyqItems.clear();
+      pdfUrl.value = null;
     }
   }
 }
@@ -133,14 +261,16 @@ class _PyqBody extends StatelessWidget {
             children: [
               _breadcrumb(c),
               SizedBox(height: 16.h),
-              if (c.selectedCategory.value == null)
-                _categoriesList(c)
-              else if (c.selectedYear.value == null)
-                _yearsList(c)
-              else if (c.selectedSubjectId.value == null)
-                _subjectsList(c)
-              else
-                _qaList(c),
+            if (c.isLoading.value && c.categories.isEmpty)
+              _loadingIndicator()
+            else if (c.selectedCategory.value == null)
+              _categoriesList(c)
+            else if (c.selectedYear.value == null)
+              _yearsList(c)
+            else if (c.selectedSubjectId.value == null)
+              _subjectsList(c)
+            else
+              _qaList(c),
             ],
           ),
         ),
@@ -167,7 +297,7 @@ class _PyqBody extends StatelessWidget {
               size: 16.sp,
             ),
             _chip(
-              c.selectedCategory.value!.name,
+              c.selectedCategory.value!,
               c.selectedYear.value == null,
               () => c.resetTo(1),
             ),
@@ -191,9 +321,7 @@ class _PyqBody extends StatelessWidget {
               size: 16.sp,
             ),
             _chip(
-              MockData.subjects
-                  .firstWhere((s) => s.id == c.selectedSubjectId.value)
-                  .name,
+              c.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value, orElse: () => AppSubject(id: c.selectedSubjectId.value!, name: 'Subject')).name,
               true,
               null,
             ),
@@ -280,9 +408,15 @@ class _PyqBody extends StatelessWidget {
           ),
         ),
         SizedBox(height: 24.h),
-        ...MockData.previousYearCategories.map((cat) {
+        if (c.categories.isEmpty)
+          _emptyState(Icons.assignment_outlined, 'No categories available', 'Check back later for new question categories')
+        else
+        ...c.categories.map((cat) {
+          final catName = cat['name'] as String? ?? '';
+          final catSubtitle = cat['subtitle'] as String? ?? '';
+          final catYears = (cat['years'] as List?)?.cast<int>() ?? <int>[];
           return GestureDetector(
-            onTap: () => c.selectedCategory.value = cat,
+            onTap: () => c.selectCategory(catName),
             child: Container(
               margin: EdgeInsets.only(bottom: 14.h),
               padding: EdgeInsets.all(18.r),
@@ -315,7 +449,7 @@ class _PyqBody extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          cat.name,
+                          catName,
                           style: GoogleFonts.poppins(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
@@ -324,7 +458,7 @@ class _PyqBody extends StatelessWidget {
                         ),
                         SizedBox(height: 2.h),
                         Text(
-                          cat.subtitle,
+                          catSubtitle,
                           style: GoogleFonts.poppins(
                             fontSize: 11.sp,
                             color: AppColor.textSecondary,
@@ -332,7 +466,7 @@ class _PyqBody extends StatelessWidget {
                         ),
                         SizedBox(height: 2.h),
                         Text(
-                          '${cat.years.length} years available',
+                          '${catYears.length} years available',
                           style: GoogleFonts.poppins(
                             fontSize: 10.sp,
                             fontWeight: FontWeight.w500,
@@ -366,7 +500,9 @@ class _PyqBody extends StatelessWidget {
   // ── Step 1 ──
 
   Widget _yearsList(_PyqController c) {
-    final cat = c.selectedCategory.value!;
+    final catName = c.selectedCategory.value!;
+    final catData = c.categories.firstWhere((c2) => c2['name'] == catName, orElse: () => {'name': catName, 'years': <int>[]});
+    final yearsList = (catData['years'] as List?)?.cast<int>() ?? <int>[];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -386,7 +522,7 @@ class _PyqBody extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  cat.name,
+                  catName,
                   style: GoogleFonts.poppins(
                     fontSize: 10.sp,
                     color: AppColor.textLight,
@@ -400,10 +536,9 @@ class _PyqBody extends StatelessWidget {
         Wrap(
           spacing: 12.w,
           runSpacing: 12.h,
-          children: cat.years.map((y) {
-            final subCount = cat.subjectsForYear(y).length;
+          children: yearsList.map((y) {
             return GestureDetector(
-              onTap: () => c.selectedYear.value = y,
+              onTap: () => c.selectYear(y),
               child: Container(
                 width: (1.sw - 64.w) / 3,
                 padding: EdgeInsets.all(16.r),
@@ -436,7 +571,7 @@ class _PyqBody extends StatelessWidget {
                     ),
                     SizedBox(height: 8.h),
                     Text(
-                      '$subCount subjects',
+                      '${c.subjects.length} subjects',
                       style: GoogleFonts.poppins(
                         fontSize: 10.sp,
                         color: AppColor.textSecondary,
@@ -455,9 +590,9 @@ class _PyqBody extends StatelessWidget {
   // ── Step 2 ──
 
   Widget _subjectsList(_PyqController c) {
-    final cat = c.selectedCategory.value!;
+    final catName = c.selectedCategory.value!;
     final yr = c.selectedYear.value!;
-    final subjects = c.subjectsForYear;
+    final subjects = c.subjects;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -478,7 +613,7 @@ class _PyqBody extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${cat.name} $yr',
+                    '$catName $yr',
                     style: GoogleFonts.poppins(
                       fontSize: 10.sp,
                       color: AppColor.textLight,
@@ -491,9 +626,8 @@ class _PyqBody extends StatelessWidget {
         ),
         SizedBox(height: 14.h),
         ...subjects.map((s) {
-          final qCount = c.countForSubject(s.id);
           return GestureDetector(
-            onTap: () => c.selectedSubjectId.value = s.id,
+            onTap: () => c.selectSubject(s.id),
             child: Container(
               margin: EdgeInsets.only(bottom: 10.h),
               padding: EdgeInsets.all(16.r),
@@ -531,7 +665,7 @@ class _PyqBody extends StatelessWidget {
                         ),
                         SizedBox(height: 2.h),
                         Text(
-                          '$qCount questions available',
+                          'Questions available',
                           style: GoogleFonts.poppins(
                             fontSize: 10.sp,
                             color: AppColor.textSecondary,
@@ -587,12 +721,10 @@ class _PyqBody extends StatelessWidget {
   // ── Step 3 ──
 
   Widget _qaList(_PyqController c) {
-    final sub = MockData.subjects.firstWhere(
-      (s) => s.id == c.selectedSubjectId.value,
-    );
-    final cat = c.selectedCategory.value!;
+    final sub = c.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value, orElse: () => AppSubject(id: c.selectedSubjectId.value ?? 0, name: 'Subject'));
+    final catName = c.selectedCategory.value!;
     final yr = c.selectedYear.value!;
-    final items = c.qaItems;
+    final items = c.pyqItems;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -613,7 +745,7 @@ class _PyqBody extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${cat.name} $yr',
+                    '$catName $yr',
                     style: GoogleFonts.poppins(
                       fontSize: 10.sp,
                       color: AppColor.textLight,
@@ -640,7 +772,7 @@ class _PyqBody extends StatelessWidget {
           ],
         ),
         SizedBox(height: 16.h),
-        ...items.map((item) => _qaCard(item)),
+        ...items.map((item) => _pyqCard(item)),
         if (items.isEmpty)
           Padding(
             padding: EdgeInsets.only(top: 20.h),
@@ -668,7 +800,7 @@ class _PyqBody extends StatelessWidget {
     );
   }
 
-  Widget _qaCard(QAItem item) {
+  Widget _pyqCard(QAItem item) {
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
@@ -794,6 +926,49 @@ class _PyqBody extends StatelessWidget {
         ),
         backgroundColor: AppColor.success,
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _loadingIndicator() {
+    return ShimmerWidget.pageLoader(itemCount: 4, itemHeight: 120);
+  }
+
+  Widget _emptyState(IconData icon, String title, String subtitle) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.only(top: 40.h),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(20.r),
+              decoration: BoxDecoration(
+                color: AppColor.backgroundColorLight,
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Icon(icon, size: 48.sp, color: AppColor.textLight),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColor.textPrimary,
+              ),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              subtitle,
+              style: GoogleFonts.poppins(
+                fontSize: 12.sp,
+                color: AppColor.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

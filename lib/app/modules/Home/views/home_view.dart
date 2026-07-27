@@ -9,6 +9,7 @@ import 'package:lottie/lottie.dart';
 import '../../../data/config/appcolor.dart';
 import '../../../data/models/mock_data.dart';
 import '../../../data/widgets/decorative_background.dart';
+import '../../../data/widgets/shimmer_widget.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends StatelessWidget {
@@ -108,6 +109,7 @@ class HomeView extends StatelessWidget {
   // ───────────────────────────────────────────
 
   Widget _buildHomeTab(BuildContext context) {
+    final c = Get.find<HomeController>();
     return DecorativeBackground(
       showBottomDecoration: true,
       child: SafeArea(
@@ -116,23 +118,28 @@ class HomeView extends StatelessWidget {
             children: [
               _buildAppBar(scaffoldContext),
               Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 8.h),
-                      _buildGreeting(),
-                      SizedBox(height: 16.h),
-                      _buildCarouselBanner(),
-                      SizedBox(height: 20.h),
-                      _buildAnimationsRow(),
-                      SizedBox(height: 28.h),
-                      _buildActionButtons(scaffoldContext),
-                      SizedBox(height: 24.h),
-                    ],
-                  ),
-                ),
+                child: Obx(() {
+                  if (c.isLoading.value) {
+                    return ShimmerWidget.pageLoader(itemCount: 5, itemHeight: 160);
+                  }
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 8.h),
+                        _buildGreeting(),
+                        SizedBox(height: 16.h),
+                        _buildCarouselBanner(),
+                        SizedBox(height: 20.h),
+                        _buildAnimationsRow(),
+                        SizedBox(height: 28.h),
+                        _buildActionButtons(scaffoldContext),
+                        SizedBox(height: 24.h),
+                      ],
+                    ),
+                  );
+                }),
               ),
             ],
           ),

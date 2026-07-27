@@ -4,7 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'dart:developer';
+
 import '../../../../data/config/appcolor.dart';
+import '../../../../data/function/dio_post.dart';
+import '../../../../data/widgets/shimmer_widget.dart';
 import '../../../../data/models/mock_data.dart';
 import '../../../../data/widgets/decorative_background.dart';
 
@@ -67,47 +71,206 @@ class _QAController extends GetxController {
   final selectedClassId = Rx<int?>(null);
   final selectedSubjectId = Rx<int?>(null);
   final selectedChapterId = Rx<int?>(null);
-  final selectedType = Rx<QuestionType?>(null);
+  final selectedType = Rx<String?>(null);
 
-  List<AppClass> get availableClasses {
-    final ids =
-        MockData.qaItems.map((e) => e.classId).toSet().whereType<int>();
-    return MockData.allClasses.where((c) => ids.contains(c.id)).toList();
+  var isLoading = false.obs;
+
+  // API data
+  var classes = <AppClass>[].obs;
+  var subjects = <AppSubject>[].obs;
+  var chapters = <AppChapter>[].obs;
+  var qaItemList = <QAItem>[].obs;
+
+  // Question types from API
+  var questionTypes = <Map<String, dynamic>>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchClasses();
   }
 
-  List<AppSubject> get availableSubjects {
-    final classId = selectedClassId.value;
-    if (classId == null) return [];
-    final ids = MockData.qaItems
-        .where((e) => e.classId == classId)
-        .map((e) => e.subjectId)
-        .toSet()
-        .whereType<int>();
-    return MockData.subjects.where((s) => ids.contains(s.id)).toList();
-  }
+  // ── API Calls ──
 
-  List<AppChapter> get availableChapters {
-    final classId = selectedClassId.value;
-    final subId = selectedSubjectId.value;
-    if (classId == null || subId == null) return [];
-    return MockData.chapters.where((c) {
-      return MockData.qaItems.any(
-        (q) => q.classId == classId && q.subjectId == subId && q.chapterId == c.id,
+  Future<void> fetchClasses() async {
+    try {
+      isLoading.value = true;
+
+      final response = await dioPost(
+        endUrl: "/qa/classes.php",
+        data: {},
       );
-    }).toList();
+
+      if (response.data['data'] != null) {
+        classes.value = (response.data['data'] as List).map((c) {
+          return AppClass(
+            id: c['id'] ?? 0,
+            name: 'Class ${c['name'] ?? c['id']}',
+            grade: (c['name'] ?? c['id']).toString(),
+          );
+        }).toList();
+      }
+    } catch (e) {
+      log("QA fetch classes error: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  List<QuestionType> get availableTypes => QuestionType.values.toList();
+  Future<void> fetchSubjects(int classId) async {
+    try {
+      isLoading.value = true;
 
-  List<QAItem> get filteredQAItems {
+      final response = await dioPost(
+        endUrl: "/qa/subjects.php",
+        data: {"class_id": classId},
+      );
+
+      if (response.data['data'] != null) {
+        subjects.value = (response.data['data'] as List).map((s) {
+          return AppSubject(
+            id: s['id'] ?? 0,
+            name: s['name'] ?? '',
+            icon: '📚',
+          );
+        }).toList();
+      }
+    } catch (e) {
+      log("QA fetch subjects error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchChapters(int classId, int subjectId) async {
+    try {
+      isLoading.value = true;
+
+      final response = await dioPost(
+        endUrl: "/qa/chapters.php",
+        data: {
+          "class_id": classId,
+          "subject_id": subjectId,
+        },
+      );
+
+      if (response.data['data'] != null) {
+        chapters.value = (response.data['data'] as List).map((ch) {
+          return AppChapter(
+            id: ch['id'] ?? 0,
+            name: ch['name'] ?? '',
+          );
+        }).toList();
+      }
+    } catch (e) {
+      log("QA fetch chapters error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchTypes() async {
+    try {
+      isLoading.value = true;
+
+      final response = await dioPost(
+        endUrl: "/qa/types.php",
+        data: {},
+      );
+
+      if (response.data['data'] != null) {
+        questionTypes.value = (response.data['data'] as List).map((t) {
+          return <String, dynamic>{
+            'type': t['type'] ?? '',
+            'label': t['label'] ?? '',
+            'description': t['description'] ?? '',
+          };
+        }).toList();
+      }
+    } catch (e) {
+      log("QA fetch types error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchItems(int classId, int subjectId, int chapterId, String type) async {
+    try {
+      isLoading.value = true;
+
+      final response = await dioPost(
+        endUrl: "/qa/items.php",
+        data: {
+          "class_id": classId,
+          "subject_id": subjectId,
+          "chapter_id": chapterId,
+          "type": type,
+        },
+      );
+
+      if (response.data['data'] != null) {
+        qaItemList.value = (response.data['data'] as List).map((item) {
+          return QAItem(
+            id: item['id'] ?? 0,
+            question: item['question'] ?? '',
+            answer: item['answer'] ?? '',
+            type: QuestionType.values.firstWhere(
+              (t) => t.name == item['type'],
+              orElse: () => QuestionType.veryShort,
+            ),
+            subjectId: item['subject_id'],
+            chapterId: item['chapter_id'],
+            classId: item['class_id'],
+          );
+        }).toList();
+      }
+    } catch (e) {
+      log("QA fetch items error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Selection methods with API fetch
+  void selectClass(int classId) {
+    selectedClassId.value = classId;
+    selectedSubjectId.value = null;
+    selectedChapterId.value = null;
+    selectedType.value = null;
+    subjects.clear();
+    chapters.clear();
+    qaItemList.clear();
+    fetchSubjects(classId);
+  }
+
+  void selectSubject(int subjectId) {
+    selectedSubjectId.value = subjectId;
+    selectedChapterId.value = null;
+    selectedType.value = null;
+    chapters.clear();
+    qaItemList.clear();
+    final classId = selectedClassId.value;
+    if (classId != null) {
+      fetchChapters(classId, subjectId);
+    }
+  }
+
+  void selectChapter(int chapterId) {
+    selectedChapterId.value = chapterId;
+    selectedType.value = null;
+    qaItemList.clear();
+    fetchTypes();
+  }
+
+  void selectType(String type) {
+    selectedType.value = type;
+    qaItemList.clear();
     final classId = selectedClassId.value;
     final subId = selectedSubjectId.value;
     final chId = selectedChapterId.value;
-    final type = selectedType.value;
-    if (classId == null || subId == null || chId == null || type == null) return [];
-    return MockData.qaItems.where((q) {
-      return q.classId == classId && q.subjectId == subId && q.chapterId == chId && q.type == type;
-    }).toList();
+    if (classId != null && subId != null && chId != null) {
+      fetchItems(classId, subId, chId, type);
+    }
   }
 
   void resetTo(int step) {
@@ -116,41 +279,29 @@ class _QAController extends GetxController {
       selectedSubjectId.value = null;
       selectedChapterId.value = null;
       selectedType.value = null;
+      subjects.clear();
+      chapters.clear();
+      qaItemList.clear();
+      questionTypes.clear();
     } else if (step <= 1) {
       selectedSubjectId.value = null;
       selectedChapterId.value = null;
       selectedType.value = null;
+      chapters.clear();
+      qaItemList.clear();
+      questionTypes.clear();
     } else if (step <= 2) {
       selectedChapterId.value = null;
       selectedType.value = null;
+      qaItemList.clear();
+      questionTypes.clear();
     } else if (step <= 3) {
       selectedType.value = null;
+      qaItemList.clear();
     }
   }
 
-  static String typeLabel(QuestionType t) => switch (t) {
-    QuestionType.veryShort => 'Very Short',
-    QuestionType.explanatory => 'Explanatory',
-    QuestionType.essay => 'Essay-Type',
-  };
 
-  static IconData typeIcon(QuestionType t) => switch (t) {
-    QuestionType.veryShort => Icons.short_text_rounded,
-    QuestionType.explanatory => Icons.description_rounded,
-    QuestionType.essay => Icons.article_rounded,
-  };
-
-  static Color typeColor(QuestionType t) => switch (t) {
-    QuestionType.veryShort => AppColor.buttonOneColor,
-    QuestionType.explanatory => AppColor.buttonTwoColor,
-    QuestionType.essay => AppColor.success,
-  };
-
-  static String typeDesc(QuestionType t) => switch (t) {
-    QuestionType.veryShort => 'Brief one-line answers',
-    QuestionType.explanatory => 'Detailed explanations',
-    QuestionType.essay => 'Long-form descriptive answers',
-  };
 }
 
 // ── Body ──
@@ -173,7 +324,9 @@ class _QuestionAnswerBody extends StatelessWidget {
           children: [
             _breadcrumb(c),
             SizedBox(height: 16.h),
-            if (c.selectedClassId.value == null)
+            if (c.isLoading.value)
+              _loadingIndicator()
+            else if (c.selectedClassId.value == null)
               _classesGrid(c)
             else if (c.selectedSubjectId.value == null)
               _subjectsGrid(c)
@@ -199,24 +352,24 @@ class _QuestionAnswerBody extends StatelessWidget {
         if (c.selectedClassId.value != null) ...[
           Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
           _chip(
-            MockData.allClasses.firstWhere((c2) => c2.id == c.selectedClassId.value).name,
+            c.classes.firstWhere((c2) => c2.id == c.selectedClassId.value, orElse: () => AppClass(id: c.selectedClassId.value!, name: 'Class ${c.selectedClassId.value}', grade: '${c.selectedClassId.value}')).name,
             c.selectedSubjectId.value == null, () => c.resetTo(1), AppColor.buttonOneColor),
         ],
         if (c.selectedSubjectId.value != null) ...[
           Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
           _chip(
-            MockData.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value).name,
+            c.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value, orElse: () => AppSubject(id: c.selectedSubjectId.value!, name: 'Subject')).name,
             c.selectedChapterId.value == null, () => c.resetTo(2), AppColor.buttonOneColor),
         ],
         if (c.selectedChapterId.value != null) ...[
           Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
           _chip(
-            MockData.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value).name,
+            c.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value, orElse: () => AppChapter(id: c.selectedChapterId.value!, name: 'Chapter ${c.selectedChapterId.value}')).name,
             c.selectedType.value == null, () => c.resetTo(3), AppColor.buttonOneColor),
         ],
         if (c.selectedType.value != null) ...[
           Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
-          _chip(_QAController.typeLabel(c.selectedType.value!), true, null, AppColor.buttonOneColor),
+          _chip(c.selectedType.value!, true, null, AppColor.buttonOneColor),
         ],
       ]),
     );
@@ -243,28 +396,29 @@ class _QuestionAnswerBody extends StatelessWidget {
   // ── Step 0 ──
 
   Widget _classesGrid(_QAController c) {
-    final classes = c.availableClasses;
+    final classes = c.classes;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text('Choose your class', style: GoogleFonts.poppins(
         fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppColor.textSecondary)),
       SizedBox(height: 10.h),
-      ...List.generate((classes.length + 1) ~/ 2, (ri) {
-        final start = ri * 2;
-        final end = (start + 2).clamp(0, classes.length);
-        final row = classes.sublist(start, end);
-        return Padding(
-          padding: EdgeInsets.only(bottom: 10.h),
-          child: Row(children: row.map((cl) => Expanded(child: _classCard(cl, c))).toList()),
-        );
-      }),
+      if (classes.isEmpty)
+        _emptyState(Icons.school_outlined, 'No classes available', 'Check back later for new classes')
+      else
+        ...List.generate((classes.length + 1) ~/ 2, (ri) {
+          final start = ri * 2;
+          final end = (start + 2).clamp(0, classes.length);
+          final row = classes.sublist(start, end);
+          return Padding(
+            padding: EdgeInsets.only(bottom: 10.h),
+            child: Row(children: row.map((cl) => Expanded(child: _classCard(cl, c))).toList()),
+          );
+        }),
     ]);
   }
 
   Widget _classCard(AppClass cl, _QAController c) {
-    final qty = MockData.qaItems.where((e) => e.classId == cl.id).length;
-    final subCount = MockData.qaItems.where((e) => e.classId == cl.id).map((e) => e.subjectId).toSet().length;
     return GestureDetector(
-      onTap: () => c.selectedClassId.value = cl.id,
+      onTap: () => c.selectClass(cl.id),
       child: Container(
         margin: EdgeInsets.only(right: 10.w),
         padding: EdgeInsets.all(16.r),
@@ -281,7 +435,7 @@ class _QuestionAnswerBody extends StatelessWidget {
           SizedBox(height: 8.h),
           Text(cl.name, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
           SizedBox(height: 2.h),
-          Text('$subCount subjects · $qty Q&A', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
+          Text('Subjects', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
         ]),
       ),
     );
@@ -290,7 +444,7 @@ class _QuestionAnswerBody extends StatelessWidget {
   // ── Step 1 ──
 
   Widget _subjectsGrid(_QAController c) {
-    final subjects = c.availableSubjects;
+    final subjects = c.subjects;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         _backBtn(() => c.resetTo(0), AppColor.buttonOneColor),
@@ -298,22 +452,24 @@ class _QuestionAnswerBody extends StatelessWidget {
         Text('Choose a subject', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppColor.textSecondary)),
       ]),
       SizedBox(height: 10.h),
-      ...List.generate((subjects.length + 1) ~/ 2, (ri) {
-        final start = ri * 2;
-        final end = (start + 2).clamp(0, subjects.length);
-        final row = subjects.sublist(start, end);
-        return Padding(
-          padding: EdgeInsets.only(bottom: 10.h),
-          child: Row(children: row.map((s) => Expanded(child: _subjectCard(s, c))).toList()),
-        );
-      }),
+      if (subjects.isEmpty)
+        _emptyState(Icons.book_outlined, 'No subjects available', 'No subjects found for this class')
+      else
+        ...List.generate((subjects.length + 1) ~/ 2, (ri) {
+          final start = ri * 2;
+          final end = (start + 2).clamp(0, subjects.length);
+          final row = subjects.sublist(start, end);
+          return Padding(
+            padding: EdgeInsets.only(bottom: 10.h),
+            child: Row(children: row.map((s) => Expanded(child: _subjectCard(s, c))).toList()),
+          );
+        }),
     ]);
   }
 
   Widget _subjectCard(AppSubject s, _QAController c) {
-    final q = MockData.qaItems.where((e) => e.subjectId == s.id).length;
     return GestureDetector(
-      onTap: () => c.selectedSubjectId.value = s.id,
+      onTap: () => c.selectSubject(s.id),
       child: Container(
         margin: EdgeInsets.only(right: 10.w),
         padding: EdgeInsets.all(14.r),
@@ -328,7 +484,7 @@ class _QuestionAnswerBody extends StatelessWidget {
           SizedBox(height: 6.h),
           Text(s.name, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 12.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
           SizedBox(height: 2.h),
-          Text('$q Q&A', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
+          Text(' ', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
         ]),
       ),
     );
@@ -337,7 +493,7 @@ class _QuestionAnswerBody extends StatelessWidget {
   // ── Step 2 ──
 
   Widget _chaptersList(_QAController c) {
-    final chapters = c.availableChapters;
+    final chapters = c.chapters;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         _backBtn(() => c.resetTo(1), AppColor.buttonOneColor),
@@ -345,45 +501,44 @@ class _QuestionAnswerBody extends StatelessWidget {
         Text('Choose a chapter', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppColor.textSecondary)),
       ]),
       SizedBox(height: 12.h),
-      ...chapters.map((ch) {
-        final q = MockData.qaItems.where((e) =>
-            e.classId == c.selectedClassId.value &&
-            e.subjectId == c.selectedSubjectId.value &&
-            e.chapterId == ch.id).length;
-        return GestureDetector(
-          onTap: () => c.selectedChapterId.value = ch.id,
-          child: Container(
-            margin: EdgeInsets.only(bottom: 8.h),
-            padding: EdgeInsets.all(14.r),
-            decoration: BoxDecoration(
-              color: AppColor.cardColor,
-              borderRadius: BorderRadius.circular(14.r),
-              boxShadow: [AppColor.softShadow],
-              border: Border.all(color: AppColor.cardBorder),
+      if (chapters.isEmpty)
+        _emptyState(Icons.menu_book_outlined, 'No chapters available', 'No chapters found for this subject')
+      else
+        ...chapters.map((ch) {
+          return GestureDetector(
+            onTap: () => c.selectChapter(ch.id),
+            child: Container(
+              margin: EdgeInsets.only(bottom: 8.h),
+              padding: EdgeInsets.all(14.r),
+              decoration: BoxDecoration(
+                color: AppColor.cardColor,
+                borderRadius: BorderRadius.circular(14.r),
+                boxShadow: [AppColor.softShadow],
+                border: Border.all(color: AppColor.cardBorder),
+              ),
+              child: Row(children: [
+                Container(padding: EdgeInsets.all(8.r),
+                  decoration: BoxDecoration(color: AppColor.buttonOneColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10.r)),
+                  child: Icon(Icons.book_rounded, color: AppColor.buttonOneColor, size: 20.sp)),
+                SizedBox(width: 12.w),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(ch.name, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
+                  SizedBox(height: 2.h),
+                  Text(' ', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
+                ])),
+                Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 20.sp),
+              ]),
             ),
-            child: Row(children: [
-              Container(padding: EdgeInsets.all(8.r),
-                decoration: BoxDecoration(color: AppColor.buttonOneColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10.r)),
-                child: Icon(Icons.book_rounded, color: AppColor.buttonOneColor, size: 20.sp)),
-              SizedBox(width: 12.w),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(ch.name, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
-                SizedBox(height: 2.h),
-                Text('$q questions available', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
-              ])),
-              Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 20.sp),
-            ]),
-          ),
-        );
-      }),
+          );
+        }),
     ]);
   }
 
   // ── Step 3 ──
 
   Widget _typeSelector(_QAController c) {
-    final sub = MockData.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value);
-    final ch = MockData.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value);
+    final sub = c.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value, orElse: () => AppSubject(id: c.selectedSubjectId.value ?? 0, name: 'Subject'));
+    final ch = c.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value, orElse: () => AppChapter(id: c.selectedChapterId.value ?? 0, name: 'Chapter'));
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         _backBtn(() => c.resetTo(2), AppColor.buttonOneColor),
@@ -394,35 +549,30 @@ class _QuestionAnswerBody extends StatelessWidget {
         ])),
       ]),
       SizedBox(height: 14.h),
-      ...c.availableTypes.map((t) {
-        final qc = MockData.qaItems.where((q) =>
-            q.classId == c.selectedClassId.value &&
-            q.subjectId == c.selectedSubjectId.value &&
-            q.chapterId == c.selectedChapterId.value &&
-            q.type == t).length;
+      ...c.questionTypes.map((t) {
+        final typeVal = t['type'] ?? '';
+        final label = t['label'] ?? typeVal;
+        final desc = t['description'] ?? '';
         return GestureDetector(
-          onTap: () => c.selectedType.value = t,
+          onTap: () => c.selectType(typeVal),
           child: Container(
             margin: EdgeInsets.only(bottom: 10.h),
             padding: EdgeInsets.all(16.r),
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [_QAController.typeColor(t).withValues(alpha: 0.05), Colors.white], begin: Alignment.centerLeft, end: Alignment.centerRight),
+              gradient: LinearGradient(colors: [AppColor.buttonOneColor.withValues(alpha: 0.05), Colors.white], begin: Alignment.centerLeft, end: Alignment.centerRight),
               borderRadius: BorderRadius.circular(16.r),
-              border: Border.all(color: _QAController.typeColor(t).withValues(alpha: 0.2)),
+              border: Border.all(color: AppColor.buttonOneColor.withValues(alpha: 0.2)),
             ),
             child: Row(children: [
               Container(padding: EdgeInsets.all(10.r),
-                decoration: BoxDecoration(color: _QAController.typeColor(t), borderRadius: BorderRadius.circular(12.r)),
-                child: Icon(_QAController.typeIcon(t), color: Colors.white, size: 22.sp)),
+                decoration: BoxDecoration(color: AppColor.buttonOneColor, borderRadius: BorderRadius.circular(12.r)),
+                child: Icon(Icons.short_text_rounded, color: Colors.white, size: 22.sp)),
               SizedBox(width: 14.w),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(_QAController.typeLabel(t), style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: _QAController.typeColor(t))),
+                Text(label, style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColor.buttonOneColor)),
                 SizedBox(height: 2.h),
-                Text(_QAController.typeDesc(t), style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
+                Text(desc, style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
               ])),
-              Container(padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                decoration: BoxDecoration(color: _QAController.typeColor(t).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8.r)),
-                child: Text('$qc Qs', style: GoogleFonts.poppins(fontSize: 11.sp, fontWeight: FontWeight.w600, color: _QAController.typeColor(t)))),
               SizedBox(width: 4.w),
               Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 20.sp),
             ]),
@@ -435,15 +585,15 @@ class _QuestionAnswerBody extends StatelessWidget {
   // ── Step 4 ──
 
   Widget _qaList(_QAController c) {
-    final sub = MockData.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value);
-    final ch = MockData.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value);
-    final items = c.filteredQAItems;
+    final sub = c.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value, orElse: () => AppSubject(id: c.selectedSubjectId.value ?? 0, name: 'Subject'));
+    final ch = c.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value, orElse: () => AppChapter(id: c.selectedChapterId.value ?? 0, name: 'Chapter'));
+    final items = c.qaItemList;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
         _backBtn(() => c.resetTo(3), AppColor.buttonOneColor),
         SizedBox(width: 10.w),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(_QAController.typeLabel(c.selectedType.value!), style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: _QAController.typeColor(c.selectedType.value!))),
+          Text(c.selectedType.value!, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.buttonOneColor)),
           Text('${sub.name} › ${ch.name}', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textLight)),
         ])),
         Container(padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
@@ -475,10 +625,10 @@ class _QuestionAnswerBody extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: EdgeInsets.all(14.r),
-          decoration: BoxDecoration(color: _QAController.typeColor(item.type).withValues(alpha: 0.04), borderRadius: const BorderRadius.vertical(top: Radius.circular(16))),
+          decoration: BoxDecoration(color: AppColor.buttonOneColor.withValues(alpha: 0.04), borderRadius: const BorderRadius.vertical(top: Radius.circular(16))),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(margin: EdgeInsets.only(top: 2.h, right: 10.w),
-              child: Icon(Icons.help_rounded, color: _QAController.typeColor(item.type), size: 18.sp)),
+              child: Icon(Icons.help_rounded, color: AppColor.buttonOneColor, size: 18.sp)),
             Expanded(child: Text(item.question, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary, height: 1.4))),
             GestureDetector(
               onTap: () => _copyText(item.question, 'Question'),
@@ -521,6 +671,49 @@ class _QuestionAnswerBody extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
         backgroundColor: AppColor.success,
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Widget _loadingIndicator() {
+    return ShimmerWidget.pageLoader(itemCount: 4, itemHeight: 120);
+  }
+
+  Widget _emptyState(IconData icon, String title, String subtitle) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.only(top: 40.h),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(20.r),
+              decoration: BoxDecoration(
+                color: AppColor.backgroundColorLight,
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Icon(icon, size: 48.sp, color: AppColor.textLight),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColor.textPrimary,
+              ),
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              subtitle,
+              style: GoogleFonts.poppins(
+                fontSize: 12.sp,
+                color: AppColor.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

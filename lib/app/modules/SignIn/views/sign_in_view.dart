@@ -123,7 +123,24 @@ class SignInView extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(height: 8.h),
+                      // Forgot Password Link
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () => Get.toNamed('/forgot-password'),
+                          child: Padding(
+                            padding: EdgeInsets.only(bottom: 8.h),
+                            child: Text(
+                              "Forgot Password?",
+                              style: GoogleFonts.poppins(
+                                color: AppColor.buttonOneColor,
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
 
                       // Sign In Button - smaller height
                       Obx(() {

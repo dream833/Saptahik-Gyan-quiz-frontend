@@ -17,25 +17,25 @@ class SignInController extends GetxController {
     try {
       isLoading.value = true;
       var responses = await dioPost(
-        endUrl: "/applogin.php",
+        endUrl: "/login.php",
         data: {
-          "phone": mobileController.text,
+          "mobile": mobileController.text,
           "password": passwordController.text,
         },
       );
 
       log("Response: ${responses.data}");
 
-      if (responses.data['message'] == "Login successful") {
+      if (responses.data['status'] == true) {
         getBox.write(IS_USER_LOGGED_IN, true);
-        getBox.write(USER_ID, responses.data['data']['user']['id']);
+        getBox.write(USER_ID, responses.data['user']['id'].toString());
 
         log("IS_USER_LOGGED_IN: ${getBox.read(IS_USER_LOGGED_IN)}");
         log("USER_ID: ${getBox.read(USER_ID)}");
 
         Get.snackbar(
           "Success",
-          "Login Successful",
+          responses.data['message'] ?? "Login Successful",
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../data/config/appcolor.dart';
 import '../../../data/models/mock_data.dart';
 import '../../../data/widgets/decorative_background.dart';
+import '../../../data/widgets/shimmer_widget.dart';
 import '../controllers/daily_mock_test_controller.dart';
 
 class DailyMockTestView extends StatelessWidget {
@@ -25,6 +26,19 @@ class DailyMockTestView extends StatelessWidget {
               _buildAppBar(context, controller),
               Expanded(
                 child: Obx(() {
+                  // Show shimmer when loading data
+                  if (controller.isLoading.value && 
+                      (controller.availableClasses.isEmpty || 
+                       (controller.currentStep.value == 1 && controller.subjects.isEmpty) ||
+                       (controller.currentStep.value == 2 && controller.testList.isEmpty))) {
+                    if (controller.currentStep.value == 0) {
+                      return _buildClassShimmer(controller);
+                    } else if (controller.currentStep.value == 1) {
+                      return _buildSubjectShimmer();
+                    } else {
+                      return _buildTestShimmer();
+                    }
+                  }
                   switch (controller.currentStep.value) {
                     case 0:
                       return _buildClassSelection(controller);
@@ -127,6 +141,90 @@ class DailyMockTestView extends StatelessWidget {
   //  STEP 1: CLASS SELECTION
   // ───────────────────────────────────────────
 
+  Widget _buildClassShimmer(DailyMockTestController controller) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 12.h),
+          ShimmerWidget.textLine(width: 200, height: 28),
+          SizedBox(height: 6.h),
+          ShimmerWidget.textLine(width: 250, height: 16),
+          SizedBox(height: 24.h),
+          Expanded(
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 14.w,
+                mainAxisSpacing: 14.h,
+                childAspectRatio: 1.1,
+              ),
+              itemCount: 4,
+              itemBuilder: (context, index) => ShimmerWidget.rect(height: 180, borderRadius: 22),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubjectShimmer() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 12.h),
+          ShimmerWidget.textLine(width: 200, height: 28),
+          SizedBox(height: 6.h),
+          ShimmerWidget.textLine(width: 220, height: 16),
+          SizedBox(height: 20.h),
+          Expanded(
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 14.w,
+                mainAxisSpacing: 14.h,
+                childAspectRatio: 1.0,
+              ),
+              itemCount: 4,
+              itemBuilder: (context, index) => ShimmerWidget.rect(height: 160, borderRadius: 20),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTestShimmer() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 12.h),
+          ShimmerWidget.textLine(width: 200, height: 28),
+          SizedBox(height: 6.h),
+          ShimmerWidget.textLine(width: 250, height: 16),
+          SizedBox(height: 20.h),
+          Expanded(
+            child: ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 3,
+              itemBuilder: (context, index) => Padding(
+                padding: EdgeInsets.only(bottom: 14.h),
+                child: ShimmerWidget.rect(height: 100, borderRadius: 20),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildClassSelection(DailyMockTestController controller) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),
@@ -152,27 +250,29 @@ class DailyMockTestView extends StatelessWidget {
           ),
           SizedBox(height: 24.h),
           Expanded(
-            child: GridView.builder(
-              physics: const BouncingScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 14.w,
-                mainAxisSpacing: 14.h,
-                childAspectRatio: 1.1,
-              ),
-              itemCount: controller.availableClasses.length,
-              itemBuilder: (context, index) {
-                final className = controller.availableClasses[index];
-                return _classCard(controller, className, index);
-              },
-            ),
+            child: controller.availableClasses.isEmpty
+                ? _emptyState(Icons.school_outlined, 'No classes available', 'Check back later for new classes')
+                : GridView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 14.w,
+                      mainAxisSpacing: 14.h,
+                      childAspectRatio: 1.1,
+                    ),
+                    itemCount: controller.availableClasses.length,
+                    itemBuilder: (context, index) {
+                      final appClass = controller.availableClasses[index];
+                      return _classCard(controller, appClass, index);
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _classCard(DailyMockTestController controller, String className, int index) {
+  Widget _classCard(DailyMockTestController controller, AppClass appClass, int index) {
     final classIcons = [
       Icons.looks_3_rounded,
       Icons.looks_4_rounded,
@@ -195,7 +295,7 @@ class DailyMockTestView extends StatelessWidget {
     ];
 
     return GestureDetector(
-      onTap: () => controller.selectClass(className),
+      onTap: () => controller.selectClass(appClass),
       child: Container(
         decoration: BoxDecoration(
           gradient: gradients[index],
@@ -225,7 +325,7 @@ class DailyMockTestView extends StatelessWidget {
             ),
             SizedBox(height: 12.h),
             Text(
-              className,
+              appClass.name,
               style: GoogleFonts.poppins(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
@@ -234,7 +334,7 @@ class DailyMockTestView extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              'Grade ${index + 9}',
+              'Grade ${appClass.grade}',
               style: GoogleFonts.poppins(
                 fontSize: 12.sp,
                 color: Colors.white70,
@@ -270,7 +370,7 @@ class DailyMockTestView extends StatelessWidget {
                 Icon(Icons.school_rounded, size: 14.sp, color: AppColor.buttonOneColor),
                 SizedBox(width: 6.w),
                 Text(
-                  controller.selectedClass.value,
+                  controller.selectedClass.value?.name ?? '',
                   style: GoogleFonts.poppins(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
@@ -291,7 +391,7 @@ class DailyMockTestView extends StatelessWidget {
           ),
           SizedBox(height: 6.h),
           Text(
-            'Select subject for ${controller.selectedClass.value}',
+            'Select subject for ${controller.selectedClass.value?.name ?? ''}',
             style: GoogleFonts.poppins(
               fontSize: 13.sp,
               color: AppColor.textSecondary,
@@ -299,20 +399,22 @@ class DailyMockTestView extends StatelessWidget {
           ),
           SizedBox(height: 20.h),
           Expanded(
-            child: GridView.builder(
-              physics: const BouncingScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 14.w,
-                mainAxisSpacing: 14.h,
-                childAspectRatio: 1.0,
-              ),
-              itemCount: controller.subjects.length,
-              itemBuilder: (context, index) {
-                final subject = controller.subjects[index];
-                return _subjectCard(controller, subject, index);
-              },
-            ),
+            child: controller.subjects.isEmpty
+                ? _emptyState(Icons.book_outlined, 'No subjects available', 'No subjects found for this class')
+                : GridView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 14.w,
+                      mainAxisSpacing: 14.h,
+                      childAspectRatio: 1.0,
+                    ),
+                    itemCount: controller.subjects.length,
+                    itemBuilder: (context, index) {
+                      final subject = controller.subjects[index];
+                      return _subjectCard(controller, subject, index);
+                    },
+                  ),
           ),
         ],
       ),
@@ -398,7 +500,7 @@ class DailyMockTestView extends StatelessWidget {
           // Breadcrumb
           Row(
             children: [
-              _breadcrumbChip(controller.selectedClass.value, AppColor.buttonOneColor),
+              _breadcrumbChip(controller.selectedClass.value?.name ?? '', AppColor.buttonOneColor),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 6.w),
                 child: Icon(Icons.chevron_right, size: 16.sp, color: AppColor.textLight),
@@ -418,7 +520,7 @@ class DailyMockTestView extends StatelessWidget {
           ),
           SizedBox(height: 6.h),
           Text(
-            '${controller.selectedSubject.value?.name ?? ''} mock tests for ${controller.selectedClass.value}',
+            '${controller.selectedSubject.value?.name ?? ''} mock tests for ${controller.selectedClass.value?.name ?? ''}',
             style: GoogleFonts.poppins(
               fontSize: 13.sp,
               color: AppColor.textSecondary,
@@ -426,14 +528,16 @@ class DailyMockTestView extends StatelessWidget {
           ),
           SizedBox(height: 20.h),
           Expanded(
-            child: ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: controller.testList.length,
-              itemBuilder: (context, index) {
-                final test = controller.testList[index];
-                return _testCard(controller, test, index);
-              },
-            ),
+            child: controller.testList.isEmpty
+                ? _emptyState(Icons.quiz_outlined, 'No tests available', 'No tests found for this subject')
+                : ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: controller.testList.length,
+                    itemBuilder: (context, index) {
+                      final test = controller.testList[index];
+                      return _testCard(controller, test, index);
+                    },
+                  ),
           ),
         ],
       ),
@@ -534,6 +638,42 @@ class DailyMockTestView extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _emptyState(IconData icon, String title, String subtitle) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.all(20.r),
+            decoration: BoxDecoration(
+              color: AppColor.backgroundColorLight,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Icon(icon, size: 48.sp, color: AppColor.textLight),
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColor.textPrimary,
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            subtitle,
+            style: GoogleFonts.poppins(
+              fontSize: 12.sp,
+              color: AppColor.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

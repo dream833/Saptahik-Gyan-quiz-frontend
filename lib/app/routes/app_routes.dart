@@ -18,6 +18,7 @@ abstract class Routes {
   static const ABOUT = _Paths.ABOUT;
   static const TERMS = _Paths.TERMS;
   static const ALL_MOCK_TESTS = _Paths.ALL_MOCK_TESTS;
+  static const FORGOT_PASSWORD = _Paths.FORGOT_PASSWORD;
 }
 
 abstract class _Paths {
@@ -36,4 +37,5 @@ abstract class _Paths {
   static const ABOUT = '/about';
   static const TERMS = '/terms';
   static const ALL_MOCK_TESTS = '/all-mock-tests';
+  static const FORGOT_PASSWORD = '/forgot-password';
 }

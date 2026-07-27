@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,11 +9,12 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../data/config/app_cons.dart';
 import '../../../data/config/appcolor.dart';
+import '../../../data/function/dio_post.dart';
 import '../../../data/models/mock_data.dart';
 
 class TestScreenController extends GetxController {
   // Timer
-  final totalSeconds = 200; // 3 minutes 20 seconds
+  var totalSeconds = 200;
   var remainingSeconds = 200.obs;
   late Timer _timer;
   var isTimerRunning = false.obs;
@@ -29,11 +31,14 @@ class TestScreenController extends GetxController {
   var wrongCount = 0.obs;
   var unansweredCount = 0.obs;
   var timeTaken = 0.obs;
+  var isSubmitting = false.obs;
 
   // Arguments
   late MockTestInfo testInfo;
   late String className;
   late String subjectName;
+  int? testId; // For submit API
+  int? userId; // For submit API
 
   @override
   void onInit() {
@@ -49,6 +54,13 @@ class TestScreenController extends GetxController {
       subjectName = subjectArg?.toString() ?? '';
     }
 
+    // Get testId from arguments if available
+    testId = args['testId'] as int?;
+
+    // Get user ID from storage
+    final storedId = getBox.read(USER_ID);
+    userId = storedId != null ? int.tryParse(storedId.toString()) : null;
+
     // Use custom questions if provided, otherwise generate sample
     final customQuestions = args['questions'] as List<Question>?;
     if (customQuestions != null && customQuestions.isNotEmpty) {
@@ -56,6 +68,14 @@ class TestScreenController extends GetxController {
     } else {
       questions.value = Question.generateSample();
     }
+
+    // Override timer if provided
+    final timeSeconds = args['timeSeconds'] as int?;
+    if (timeSeconds != null && timeSeconds > 0) {
+      totalSeconds = timeSeconds;
+      remainingSeconds.value = timeSeconds;
+    }
+
     _startTimer();
   }
 
@@ -76,7 +96,7 @@ class TestScreenController extends GetxController {
     return '$minutes:$seconds';
   }
 
-  double get progressValue => remainingSeconds.value / totalSeconds;
+  double get progressValue => totalSeconds > 0 ? remainingSeconds.value / totalSeconds : 0;
 
   int get totalQuestions => questions.length;
 
@@ -152,6 +172,47 @@ class TestScreenController extends GetxController {
 
     // Show the thank you popup dialog
     _showThankYouDialog();
+
+    // Submit to API in background
+    _submitToApi();
+  }
+
+  Future<void> _submitToApi() async {
+    if (testId == null || userId == null) return;
+
+    try {
+      isSubmitting.value = true;
+
+      // Build answers map: question_id -> selected letter (A/B/C/D)
+      final Map<String, String> answers = {};
+      final letterOptions = ['A', 'B', 'C', 'D'];
+
+      for (int i = 0; i < totalQuestions; i++) {
+        if (selectedAnswers.containsKey(i)) {
+          final selectedIdx = selectedAnswers[i]!;
+          answers[questions[i].id.toString()] = letterOptions[selectedIdx];
+        }
+      }
+
+      final response = await dioPost(
+        endUrl: "/submit-mocktest.php",
+        data: {
+          "user_id": userId,
+          "test_id": testId,
+          "answers": answers,
+        },
+      );
+
+      log("Submit Test Response: ${response.data}");
+
+      if (response.data['status'] == true) {
+        log("Test submitted successfully: ${response.data['data']}");
+      }
+    } catch (e) {
+      log("Submit test API error: $e");
+    } finally {
+      isSubmitting.value = false;
+    }
   }
 
   void _showThankYouDialog() {
@@ -267,8 +328,9 @@ class TestScreenController extends GetxController {
                                 color: AppColor.buttonTwoColor,
                                 onTap: () {
                                   Get.back(); // close dialog
-                                  // Navigate to answer review
-                                  Get.to(
+                                  // Navigate to answer review, replacing TestScreen
+                                  // so pressing back goes to Available Tests
+                                  Get.off(
                                     () => _AnswerReviewScreen(
                                       controller: this,
                                     ),

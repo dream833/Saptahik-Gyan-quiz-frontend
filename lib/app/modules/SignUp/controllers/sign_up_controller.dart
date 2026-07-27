@@ -40,18 +40,20 @@ class SignUpController extends GetxController {
       final response = await dioPost(
         endUrl: "/signup.php",
         data: {
-          "name": name,
+          "full_name": name,
           "email": email,
-          "phone": mobile,
+          "mobile": mobile,
           "password": password,
         },
       );
 
-      if (response.data['message'] == "Signup successful") {
+      log("Signup Response: ${response.data}");
+
+      if (response.data['success'] == true) {
         Get.showSnackbar(
           GetSnackBar(
             title: "",
-            message: "SignUp Done",
+            message: response.data['message'] ?? "SignUp Done",
             duration: const Duration(seconds: 2),
           ),
         );
