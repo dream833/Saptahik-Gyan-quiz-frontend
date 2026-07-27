@@ -45,7 +45,11 @@ class AllMockTestView extends StatelessWidget {
                 gradient: AppColor.primaryGradient,
                 borderRadius: BorderRadius.circular(10.r),
               ),
-              child: Icon(Icons.list_alt_rounded, color: Colors.white, size: 20.sp),
+              child: Icon(
+                Icons.list_alt_rounded,
+                color: Colors.white,
+                size: 20.sp,
+              ),
             ),
             SizedBox(width: 10.w),
             Text(
@@ -113,27 +117,61 @@ class _AllMockTestBody extends StatelessWidget {
   Widget _breadcrumb(AllMockTestController c) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Row(children: [
-        _chip('Class', c.selectedClassId.value == null, () => c.resetTo(0), AppColor.buttonOneColor),
-        if (c.selectedClassId.value != null) ...[
-          Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
+      child: Row(
+        children: [
           _chip(
-            c.availableClasses.firstWhere((c2) => c2.id == c.selectedClassId.value).name,
-            c.selectedSubjectId.value == null, () => c.resetTo(1), AppColor.buttonOneColor),
+            'Class',
+            c.selectedClassId.value == null,
+            () => c.resetTo(0),
+            AppColor.buttonOneColor,
+          ),
+          if (c.selectedClassId.value != null) ...[
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColor.textLight,
+              size: 16.sp,
+            ),
+            _chip(
+              c.availableClasses
+                  .firstWhere((c2) => c2.id == c.selectedClassId.value)
+                  .name,
+              c.selectedSubjectId.value == null,
+              () => c.resetTo(1),
+              AppColor.buttonOneColor,
+            ),
+          ],
+          if (c.selectedSubjectId.value != null) ...[
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColor.textLight,
+              size: 16.sp,
+            ),
+            _chip(
+              c.subjects
+                  .firstWhere((s) => s.id == c.selectedSubjectId.value)
+                  .name,
+              c.selectedChapterId.value == null,
+              () => c.resetTo(2),
+              AppColor.buttonOneColor,
+            ),
+          ],
+          if (c.selectedChapterId.value != null) ...[
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColor.textLight,
+              size: 16.sp,
+            ),
+            _chip(
+              c.chapters
+                  .firstWhere((ch) => ch.id == c.selectedChapterId.value)
+                  .name,
+              false,
+              null,
+              AppColor.buttonOneColor,
+            ),
+          ],
         ],
-        if (c.selectedSubjectId.value != null) ...[
-          Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
-          _chip(
-            c.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value).name,
-            c.selectedChapterId.value == null, () => c.resetTo(2), AppColor.buttonOneColor),
-        ],
-        if (c.selectedChapterId.value != null) ...[
-          Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 16.sp),
-          _chip(
-            c.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value).name,
-            false, null, AppColor.buttonOneColor),
-        ],
-      ]),
+      ),
     );
   }
 
@@ -146,11 +184,14 @@ class _AllMockTestBody extends StatelessWidget {
           color: active ? color.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(8.r),
         ),
-        child: Text(label, style: GoogleFonts.poppins(
-          fontSize: 11.sp,
-          fontWeight: active ? FontWeight.w600 : FontWeight.w400,
-          color: active ? color : AppColor.textSecondary,
-        )),
+        child: Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 11.sp,
+            fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+            color: active ? color : AppColor.textSecondary,
+          ),
+        ),
       ),
     );
   }
@@ -159,26 +200,49 @@ class _AllMockTestBody extends StatelessWidget {
 
   Widget _classesGrid(AllMockTestController c) {
     final classes = c.availableClasses;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('Choose your class', style: GoogleFonts.poppins(
-        fontSize: 22.sp, fontWeight: FontWeight.w700, color: AppColor.textPrimary)),
-      SizedBox(height: 6.h),
-      Text('Select a class to view mock test sets', style: GoogleFonts.poppins(
-        fontSize: 13.sp, color: AppColor.textSecondary)),
-      SizedBox(height: 20.h),
-      if (classes.isEmpty)
-        _emptyState(c, Icons.school_outlined, 'No classes available', 'Check back later for new classes')
-      else
-        ...List.generate((classes.length + 1) ~/ 2, (ri) {
-          final start = ri * 2;
-          final end = (start + 2).clamp(0, classes.length);
-          final row = classes.sublist(start, end);
-          return Padding(
-            padding: EdgeInsets.only(bottom: 12.h),
-            child: Row(children: row.map((cl) => Expanded(child: _classCard(cl, c))).toList()),
-          );
-        }),
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Choose your class',
+          style: GoogleFonts.poppins(
+            fontSize: 22.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColor.textPrimary,
+          ),
+        ),
+        SizedBox(height: 6.h),
+        Text(
+          'Select a class to view mock test sets',
+          style: GoogleFonts.poppins(
+            fontSize: 13.sp,
+            color: AppColor.textSecondary,
+          ),
+        ),
+        SizedBox(height: 20.h),
+        if (classes.isEmpty)
+          _emptyState(
+            c,
+            Icons.school_outlined,
+            'No classes available',
+            'Check back later for new classes',
+          )
+        else
+          ...List.generate((classes.length + 1) ~/ 2, (ri) {
+            final start = ri * 2;
+            final end = (start + 2).clamp(0, classes.length);
+            final row = classes.sublist(start, end);
+            return Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: Row(
+                children: row
+                    .map((cl) => Expanded(child: _classCard(cl, c)))
+                    .toList(),
+              ),
+            );
+          }),
+      ],
+    );
   }
 
   Widget _classCard(AppClass cl, AllMockTestController c) {
@@ -197,7 +261,11 @@ class _AllMockTestBody extends StatelessWidget {
         margin: EdgeInsets.only(right: 10.w),
         padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: gradientColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
@@ -207,19 +275,39 @@ class _AllMockTestBody extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(children: [
-          Container(
-            width: 48.r, height: 48.r,
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle),
-            child: Center(
-              child: Text(cl.grade, style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.w700, color: Colors.white)),
+        child: Column(
+          children: [
+            Container(
+              width: 48.r,
+              height: 48.r,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  cl.grade,
+                  style: GoogleFonts.poppins(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
-          ),
-          SizedBox(height: 10.h),
-          Text(cl.name, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w700, color: Colors.white)),
-          SizedBox(height: 2.h),
-          Text('Multiple subjects', style: GoogleFonts.poppins(fontSize: 10.sp, color: Colors.white70)),
-        ]),
+            SizedBox(height: 10.h),
+            Text(
+              cl.name,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(height: 2.h),
+          ],
+        ),
       ),
     );
   }
@@ -228,38 +316,66 @@ class _AllMockTestBody extends StatelessWidget {
 
   Widget _subjectsGrid(AllMockTestController c) {
     final subjects = c.subjects;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        _backBtn(() => c.resetTo(0), AppColor.buttonOneColor),
-        SizedBox(width: 10.w),
-        Text('Choose a subject', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppColor.textSecondary)),
-      ]),
-      SizedBox(height: 12.h),
-      if (subjects.isEmpty)
-        _emptyState(c, Icons.book_outlined, 'No subjects available', 'No subjects found for this class')
-      else
-        ...List.generate((subjects.length + 1) ~/ 2, (ri) {
-          final start = ri * 2;
-          final end = (start + 2).clamp(0, subjects.length);
-          final row = subjects.sublist(start, end);
-          return Padding(
-            padding: EdgeInsets.only(bottom: 12.h),
-            child: Row(children: row.map((s) => Expanded(child: _subjectCard(s, c))).toList()),
-          );
-        }),
-    ]);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _backBtn(() => c.resetTo(0), AppColor.buttonOneColor),
+            SizedBox(width: 10.w),
+            Text(
+              'Choose a subject',
+              style: GoogleFonts.poppins(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                color: AppColor.textSecondary,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12.h),
+        if (subjects.isEmpty)
+          _emptyState(
+            c,
+            Icons.book_outlined,
+            'No subjects available',
+            'No subjects found for this class',
+          )
+        else
+          ...List.generate((subjects.length + 1) ~/ 2, (ri) {
+            final start = ri * 2;
+            final end = (start + 2).clamp(0, subjects.length);
+            final row = subjects.sublist(start, end);
+            return Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: Row(
+                children: row
+                    .map((s) => Expanded(child: _subjectCard(s, c)))
+                    .toList(),
+              ),
+            );
+          }),
+      ],
+    );
   }
 
   Widget _subjectCard(AppSubject s, AllMockTestController c) {
     final subjectColors = <Color>[
-      const Color(0xFFB96237), const Color(0xFF113650), const Color(0xFF2E7D32),
-      const Color(0xFF6A1B9A), const Color(0xFF1565C0), const Color(0xFFE65100),
+      const Color(0xFFB96237),
+      const Color(0xFF113650),
+      const Color(0xFF2E7D32),
+      const Color(0xFF6A1B9A),
+      const Color(0xFF1565C0),
+      const Color(0xFFE65100),
     ];
     final color = subjectColors[s.id % subjectColors.length];
     final subjectIcons = <String, IconData>{
-      'Bangla': Icons.menu_book_rounded, 'English': Icons.book_rounded,
-      'Mathematics': Icons.calculate_rounded, 'Science': Icons.science_rounded,
-      'History': Icons.history_edu_rounded, 'Geography': Icons.public_rounded,
+      'Bangla': Icons.menu_book_rounded,
+      'English': Icons.book_rounded,
+      'Mathematics': Icons.calculate_rounded,
+      'Science': Icons.science_rounded,
+      'History': Icons.history_edu_rounded,
+      'Geography': Icons.public_rounded,
     };
 
     return GestureDetector(
@@ -273,17 +389,40 @@ class _AllMockTestBody extends StatelessWidget {
           boxShadow: [AppColor.cardShadow],
           border: Border.all(color: AppColor.cardBorder),
         ),
-        child: Column(children: [
-          Container(
-            padding: EdgeInsets.all(12.r),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14.r)),
-            child: Icon(subjectIcons[s.name] ?? Icons.book_rounded, color: color, size: 28.sp),
-          ),
-          SizedBox(height: 8.h),
-          Text(s.name, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
-          SizedBox(height: 2.h),
-          Text('Multiple chapters', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
-        ]),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(12.r),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              child: Icon(
+                subjectIcons[s.name] ?? Icons.book_rounded,
+                color: color,
+                size: 28.sp,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              s.name,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColor.textPrimary,
+              ),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              'Multiple chapters',
+              style: GoogleFonts.poppins(
+                fontSize: 10.sp,
+                color: AppColor.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -292,49 +431,94 @@ class _AllMockTestBody extends StatelessWidget {
 
   Widget _chaptersList(AllMockTestController c) {
     final chapters = c.chapters;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        _backBtn(() => c.resetTo(1), AppColor.buttonOneColor),
-        SizedBox(width: 10.w),
-        Text('Choose a chapter', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppColor.textSecondary)),
-      ]),
-      SizedBox(height: 12.h),
-      if (chapters.isEmpty)
-        _emptyState(c, Icons.menu_book_outlined, 'No chapters available', 'No chapters found for this subject')
-      else
-        ...chapters.map((ch) {
-          return GestureDetector(
-            onTap: () => c.selectChapter(ch.id),
-            child: Container(
-              margin: EdgeInsets.only(bottom: 10.h),
-              padding: EdgeInsets.all(16.r),
-              decoration: BoxDecoration(
-                color: AppColor.cardColor,
-                borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [AppColor.softShadow],
-                border: Border.all(color: AppColor.cardBorder),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _backBtn(() => c.resetTo(1), AppColor.buttonOneColor),
+            SizedBox(width: 10.w),
+            Text(
+              'Choose a chapter',
+              style: GoogleFonts.poppins(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+                color: AppColor.textSecondary,
               ),
-              child: Row(children: [
-                Container(
-                  padding: EdgeInsets.all(10.r),
-                  decoration: BoxDecoration(
-                    color: AppColor.buttonOneColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: Icon(Icons.book_rounded, color: AppColor.buttonOneColor, size: 22.sp),
-                ),
-                SizedBox(width: 14.w),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(ch.name, style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
-                  SizedBox(height: 2.h),
-                  Text('Test sets available', style: GoogleFonts.poppins(fontSize: 11.sp, color: AppColor.textSecondary)),
-                ])),
-                Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 20.sp),
-              ]),
             ),
-          );
-        }),
-    ]);
+          ],
+        ),
+        SizedBox(height: 12.h),
+        if (chapters.isEmpty)
+          _emptyState(
+            c,
+            Icons.menu_book_outlined,
+            'No chapters available',
+            'No chapters found for this subject',
+          )
+        else
+          ...chapters.map((ch) {
+            return GestureDetector(
+              onTap: () => c.selectChapter(ch.id),
+              child: Container(
+                margin: EdgeInsets.only(bottom: 10.h),
+                padding: EdgeInsets.all(16.r),
+                decoration: BoxDecoration(
+                  color: AppColor.cardColor,
+                  borderRadius: BorderRadius.circular(16.r),
+                  boxShadow: [AppColor.softShadow],
+                  border: Border.all(color: AppColor.cardBorder),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(10.r),
+                      decoration: BoxDecoration(
+                        color: AppColor.buttonOneColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Icon(
+                        Icons.book_rounded,
+                        color: AppColor.buttonOneColor,
+                        size: 22.sp,
+                      ),
+                    ),
+                    SizedBox(width: 14.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            ch.name,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppColor.textPrimary,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            'Test sets available',
+                            style: GoogleFonts.poppins(
+                              fontSize: 11.sp,
+                              color: AppColor.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColor.textLight,
+                      size: 20.sp,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+      ],
+    );
   }
 
   // ── Step 3: Set Selection ──
@@ -342,72 +526,132 @@ class _AllMockTestBody extends StatelessWidget {
   Widget _setsList(AllMockTestController c) {
     final sets = c.testSets;
     final sub = c.subjects.firstWhere((s) => s.id == c.selectedSubjectId.value);
-    final ch = c.chapters.firstWhere((ch) => ch.id == c.selectedChapterId.value);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        _backBtn(() => c.resetTo(2), AppColor.buttonOneColor),
-        SizedBox(width: 10.w),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Choose a set', style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w500, color: AppColor.textSecondary)),
-          Text('${sub.name} › ${ch.name}', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textLight)),
-        ])),
-      ]),
-      SizedBox(height: 14.h),
-      ...sets.map((set) {
-        return GestureDetector(
-          onTap: () => c.startSet(set),
-          child: Container(
-            margin: EdgeInsets.only(bottom: 12.h),
-            padding: EdgeInsets.all(18.r),
-            decoration: BoxDecoration(
-              color: AppColor.cardColor,
-              borderRadius: BorderRadius.circular(18.r),
-              boxShadow: [AppColor.cardShadow],
-              border: Border.all(color: AppColor.cardBorder),
-            ),
-            child: Row(children: [
-              Container(
-                width: 48.r, height: 48.r,
-                decoration: BoxDecoration(gradient: AppColor.primaryGradient, shape: BoxShape.circle),
-                child: Center(child: Text(
-                  '${sets.indexOf(set) + 1}',
-                  style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w700, color: Colors.white),
-                )),
+    final ch = c.chapters.firstWhere(
+      (ch) => ch.id == c.selectedChapterId.value,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _backBtn(() => c.resetTo(2), AppColor.buttonOneColor),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Choose a set',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppColor.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    '${sub.name} › ${ch.name}',
+                    style: GoogleFonts.poppins(
+                      fontSize: 10.sp,
+                      color: AppColor.textLight,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 14.w),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(set.name, style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
-                SizedBox(height: 4.h),
-                Row(children: [
-                  _setMeta(Icons.quiz_rounded, '${set.totalQuestions} Qs', AppColor.buttonOneColor),
+            ),
+          ],
+        ),
+        SizedBox(height: 14.h),
+        ...sets.map((set) {
+          return GestureDetector(
+            onTap: () => c.startSet(set),
+            child: Container(
+              margin: EdgeInsets.only(bottom: 12.h),
+              padding: EdgeInsets.all(18.r),
+              decoration: BoxDecoration(
+                color: AppColor.cardColor,
+                borderRadius: BorderRadius.circular(18.r),
+                boxShadow: [AppColor.cardShadow],
+                border: Border.all(color: AppColor.cardBorder),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48.r,
+                    height: 48.r,
+                    decoration: BoxDecoration(
+                      gradient: AppColor.primaryGradient,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${sets.indexOf(set) + 1}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                   SizedBox(width: 14.w),
-                  _setMeta(Icons.timer_outlined, '${set.totalTime} min', AppColor.buttonTwoColor),
-                ]),
-              ])),
-              Icon(Icons.play_circle_filled_rounded, color: AppColor.buttonOneColor, size: 32.sp),
-            ]),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          set.name,
+                          style: GoogleFonts.poppins(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColor.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.play_circle_filled_rounded,
+                    color: AppColor.buttonOneColor,
+                    size: 32.sp,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+        if (sets.isEmpty)
+          Padding(
+            padding: EdgeInsets.only(top: 20.h),
+            child: Center(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.search_off_rounded,
+                    color: AppColor.textLight,
+                    size: 40.sp,
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'No test sets available.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12.sp,
+                      color: AppColor.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        );
-      }),
-      if (sets.isEmpty)
-        Padding(padding: EdgeInsets.only(top: 20.h),
-          child: Center(child: Column(children: [
-            Icon(Icons.search_off_rounded, color: AppColor.textLight, size: 40.sp),
-            SizedBox(height: 8.h),
-            Text('No test sets available.', style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColor.textSecondary)),
-          ]))),
-    ]);
+      ],
+    );
   }
 
-  Widget _setMeta(IconData icon, String label, Color color) {
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 13.sp, color: color),
-      SizedBox(width: 4.w),
-      Text(label, style: GoogleFonts.poppins(fontSize: 11.sp, fontWeight: FontWeight.w500, color: color)),
-    ]);
-  }
-
-  Widget _emptyState(AllMockTestController c, IconData icon, String title, String subtitle) {
+  Widget _emptyState(
+    AllMockTestController c,
+    IconData icon,
+    String title,
+    String subtitle,
+  ) {
     return Center(
       child: Padding(
         padding: EdgeInsets.only(top: 40.h),
@@ -451,7 +695,10 @@ class _AllMockTestBody extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(6.r),
-        decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8.r)),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8.r),
+        ),
         child: Icon(Icons.arrow_back_rounded, color: color, size: 16.sp),
       ),
     );

@@ -27,10 +27,12 @@ class DailyMockTestView extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   // Show shimmer when loading data
-                  if (controller.isLoading.value && 
-                      (controller.availableClasses.isEmpty || 
-                       (controller.currentStep.value == 1 && controller.subjects.isEmpty) ||
-                       (controller.currentStep.value == 2 && controller.testList.isEmpty))) {
+                  if (controller.isLoading.value &&
+                      (controller.availableClasses.isEmpty ||
+                          (controller.currentStep.value == 1 &&
+                              controller.subjects.isEmpty) ||
+                          (controller.currentStep.value == 2 &&
+                              controller.testList.isEmpty))) {
                     if (controller.currentStep.value == 0) {
                       return _buildClassShimmer(controller);
                     } else if (controller.currentStep.value == 1) {
@@ -62,7 +64,10 @@ class DailyMockTestView extends StatelessWidget {
   //  APP BAR
   // ───────────────────────────────────────────
 
-  Widget _buildAppBar(BuildContext context, DailyMockTestController controller) {
+  Widget _buildAppBar(
+    BuildContext context,
+    DailyMockTestController controller,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       child: Row(
@@ -127,9 +132,7 @@ class DailyMockTestView extends StatelessWidget {
             margin: EdgeInsets.symmetric(horizontal: 3.w),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: i <= step
-                  ? AppColor.buttonOneColor
-                  : AppColor.textLight,
+              color: i <= step ? AppColor.buttonOneColor : AppColor.textLight,
             ),
           );
         }),
@@ -162,7 +165,8 @@ class DailyMockTestView extends StatelessWidget {
                 childAspectRatio: 1.1,
               ),
               itemCount: 4,
-              itemBuilder: (context, index) => ShimmerWidget.rect(height: 180, borderRadius: 22),
+              itemBuilder: (context, index) =>
+                  ShimmerWidget.rect(height: 180, borderRadius: 22),
             ),
           ),
         ],
@@ -191,7 +195,8 @@ class DailyMockTestView extends StatelessWidget {
                 childAspectRatio: 1.0,
               ),
               itemCount: 4,
-              itemBuilder: (context, index) => ShimmerWidget.rect(height: 160, borderRadius: 20),
+              itemBuilder: (context, index) =>
+                  ShimmerWidget.rect(height: 160, borderRadius: 20),
             ),
           ),
         ],
@@ -251,7 +256,11 @@ class DailyMockTestView extends StatelessWidget {
           SizedBox(height: 24.h),
           Expanded(
             child: controller.availableClasses.isEmpty
-                ? _emptyState(Icons.school_outlined, 'No classes available', 'Check back later for new classes')
+                ? _emptyState(
+                    Icons.school_outlined,
+                    'No classes available',
+                    'Check back later for new classes',
+                  )
                 : GridView.builder(
                     physics: const BouncingScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -272,13 +281,11 @@ class DailyMockTestView extends StatelessWidget {
     );
   }
 
-  Widget _classCard(DailyMockTestController controller, AppClass appClass, int index) {
-    final classIcons = [
-      Icons.looks_3_rounded,
-      Icons.looks_4_rounded,
-      Icons.looks_5_rounded,
-      Icons.looks_6_rounded,
-    ];
+  Widget _classCard(
+    DailyMockTestController controller,
+    AppClass appClass,
+    int index,
+  ) {
     final gradients = [
       AppColor.primaryGradient,
       AppColor.navyGradient,
@@ -294,15 +301,16 @@ class DailyMockTestView extends StatelessWidget {
       ),
     ];
 
+    final safeIndex = index % gradients.length;
     return GestureDetector(
       onTap: () => controller.selectClass(appClass),
       child: Container(
         decoration: BoxDecoration(
-          gradient: gradients[index],
+          gradient: gradients[safeIndex],
           borderRadius: BorderRadius.circular(22.r),
           boxShadow: [
             BoxShadow(
-              color: gradients[index].colors[0].withValues(alpha: 0.3),
+              color: gradients[safeIndex].colors[0].withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -312,15 +320,21 @@ class DailyMockTestView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(12.r),
+              width: 48.r,
+              height: 48.r,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                classIcons[index],
-                color: Colors.white,
-                size: 32.sp,
+              child: Center(
+                child: Text(
+                  appClass.grade,
+                  style: GoogleFonts.poppins(
+                    fontSize: 22.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
             SizedBox(height: 12.h),
@@ -330,14 +344,6 @@ class DailyMockTestView extends StatelessWidget {
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
-              ),
-            ),
-            SizedBox(height: 4.h),
-            Text(
-              'Grade ${appClass.grade}',
-              style: GoogleFonts.poppins(
-                fontSize: 12.sp,
-                color: Colors.white70,
               ),
             ),
           ],
@@ -367,7 +373,11 @@ class DailyMockTestView extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.school_rounded, size: 14.sp, color: AppColor.buttonOneColor),
+                Icon(
+                  Icons.school_rounded,
+                  size: 14.sp,
+                  color: AppColor.buttonOneColor,
+                ),
                 SizedBox(width: 6.w),
                 Text(
                   controller.selectedClass.value?.name ?? '',
@@ -400,7 +410,11 @@ class DailyMockTestView extends StatelessWidget {
           SizedBox(height: 20.h),
           Expanded(
             child: controller.subjects.isEmpty
-                ? _emptyState(Icons.book_outlined, 'No subjects available', 'No subjects found for this class')
+                ? _emptyState(
+                    Icons.book_outlined,
+                    'No subjects available',
+                    'No subjects found for this class',
+                  )
                 : GridView.builder(
                     physics: const BouncingScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -421,7 +435,11 @@ class DailyMockTestView extends StatelessWidget {
     );
   }
 
-  Widget _subjectCard(DailyMockTestController controller, AppSubject subject, int index) {
+  Widget _subjectCard(
+    DailyMockTestController controller,
+    AppSubject subject,
+    int index,
+  ) {
     final subjectIcons = <String, IconData>{
       'Bangla': Icons.menu_book_rounded,
       'English': Icons.book_rounded,
@@ -476,10 +494,7 @@ class DailyMockTestView extends StatelessWidget {
               ),
             ),
             SizedBox(height: 4.h),
-            Text(
-              subject.icon,
-              style: TextStyle(fontSize: 18.sp),
-            ),
+            Text(subject.icon, style: TextStyle(fontSize: 18.sp)),
           ],
         ),
       ),
@@ -500,13 +515,23 @@ class DailyMockTestView extends StatelessWidget {
           // Breadcrumb
           Row(
             children: [
-              _breadcrumbChip(controller.selectedClass.value?.name ?? '', AppColor.buttonOneColor),
+              _breadcrumbChip(
+                controller.selectedClass.value?.name ?? '',
+                AppColor.buttonOneColor,
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 6.w),
-                child: Icon(Icons.chevron_right, size: 16.sp, color: AppColor.textLight),
+                child: Icon(
+                  Icons.chevron_right,
+                  size: 16.sp,
+                  color: AppColor.textLight,
+                ),
               ),
               if (controller.selectedSubject.value != null)
-                _breadcrumbChip(controller.selectedSubject.value!.name, AppColor.buttonTwoColor),
+                _breadcrumbChip(
+                  controller.selectedSubject.value!.name,
+                  AppColor.buttonTwoColor,
+                ),
             ],
           ),
           SizedBox(height: 12.h),
@@ -529,7 +554,11 @@ class DailyMockTestView extends StatelessWidget {
           SizedBox(height: 20.h),
           Expanded(
             child: controller.testList.isEmpty
-                ? _emptyState(Icons.quiz_outlined, 'No tests available', 'No tests found for this subject')
+                ? _emptyState(
+                    Icons.quiz_outlined,
+                    'No tests available',
+                    'No tests found for this subject',
+                  )
                 : ListView.builder(
                     physics: const BouncingScrollPhysics(),
                     itemCount: controller.testList.length,
@@ -562,7 +591,11 @@ class DailyMockTestView extends StatelessWidget {
     );
   }
 
-  Widget _testCard(DailyMockTestController controller, MockTestInfo test, int index) {
+  Widget _testCard(
+    DailyMockTestController controller,
+    MockTestInfo test,
+    int index,
+  ) {
     return Padding(
       padding: EdgeInsets.only(bottom: 14.h),
       child: GestureDetector(
@@ -622,9 +655,17 @@ class DailyMockTestView extends StatelessWidget {
                     SizedBox(height: 8.h),
                     Row(
                       children: [
-                        _testMeta(Icons.quiz_rounded, '${test.totalQuestions} Qs', AppColor.buttonOneColor),
+                        _testMeta(
+                          Icons.quiz_rounded,
+                          '${test.totalQuestions} Qs',
+                          AppColor.buttonOneColor,
+                        ),
                         SizedBox(width: 12.w),
-                        _testMeta(Icons.timer_outlined, '${test.totalTime} min', AppColor.buttonTwoColor),
+                        _testMeta(
+                          Icons.timer_outlined,
+                          '${test.totalTime} min',
+                          AppColor.buttonTwoColor,
+                        ),
                       ],
                     ),
                   ],

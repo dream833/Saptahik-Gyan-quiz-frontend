@@ -579,34 +579,44 @@ class HomeView extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [AppColor.buttonShadow],
               ),
-              child: Center(
-                child: Text(
-                  'U',
+              child: Obx(() {
+                final c = Get.find<HomeController>();
+                final initial = c.userName.value.isNotEmpty
+                    ? c.userName.value[0].toUpperCase()
+                    : 'L';
+                return Text(
+                  initial,
                   style: GoogleFonts.poppins(
                     fontSize: 32.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
-                ),
-              ),
+                );
+              }),
             ),
             SizedBox(height: 12.h),
-            Text(
-              'Learner',
-              style: GoogleFonts.poppins(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColor.textPrimary,
-              ),
-            ),
+            Obx(() {
+              final c = Get.find<HomeController>();
+              return Text(
+                c.userName.value.isNotEmpty ? c.userName.value : 'Learner',
+                style: GoogleFonts.poppins(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColor.textPrimary,
+                ),
+              );
+            }),
             SizedBox(height: 4.h),
-            Text(
-              'learner@example.com',
-              style: GoogleFonts.poppins(
-                fontSize: 13.sp,
-                color: AppColor.textSecondary,
-              ),
-            ),
+            Obx(() {
+              final c = Get.find<HomeController>();
+              return Text(
+                c.userEmail.value.isNotEmpty ? c.userEmail.value : 'learner@example.com',
+                style: GoogleFonts.poppins(
+                  fontSize: 13.sp,
+                  color: AppColor.textSecondary,
+                ),
+              );
+            }),
 
             SizedBox(height: 24.h),
 

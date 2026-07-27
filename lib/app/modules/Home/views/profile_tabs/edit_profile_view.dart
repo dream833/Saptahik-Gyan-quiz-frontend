@@ -1,9 +1,12 @@
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:dio/dio.dart' as DIO;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../data/config/app_cons.dart';
 import '../../../../data/config/appcolor.dart';
@@ -19,11 +22,97 @@ class EditProfileController extends GetxController {
 
   var isLoading = false.obs;
   var isSaving = false.obs;
+  var selectedImageFile = Rx<File?>(null);
+  var profileImageUrl = Rx<String?>(null);
+
+  final _picker = ImagePicker();
 
   @override
   void onInit() {
     super.onInit();
     fetchProfile();
+  }
+
+  Future<void> pickImage(ImageSource source) async {
+    try {
+      final xFile = await _picker.pickImage(
+        source: source,
+        imageQuality: 80,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+      if (xFile != null) {
+        selectedImageFile.value = File(xFile.path);
+      }
+    } catch (e) {
+      log("Image pick error: $e");
+    }
+  }
+
+  void showImagePickerOptions(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: EdgeInsets.all(20.r),
+        decoration: BoxDecoration(
+          color: AppColor.cardColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: AppColor.textLight,
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'Upload Profile Photo',
+              style: GoogleFonts.poppins(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColor.textPrimary,
+              ),
+            ),
+            SizedBox(height: 20.h),
+            ListTile(
+              leading: Container(
+                padding: EdgeInsets.all(8.r),
+                decoration: BoxDecoration(
+                  color: AppColor.buttonOneColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Icon(Icons.camera_alt_rounded, color: AppColor.buttonOneColor),
+              ),
+              title: Text('Take Photo', style: GoogleFonts.poppins(fontSize: 14.sp)),
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: Container(
+                padding: EdgeInsets.all(8.r),
+                decoration: BoxDecoration(
+                  color: AppColor.buttonTwoColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Icon(Icons.photo_library_rounded, color: AppColor.buttonTwoColor),
+              ),
+              title: Text('Choose from Gallery', style: GoogleFonts.poppins(fontSize: 14.sp)),
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.gallery);
+              },
+            ),
+            SizedBox(height: 8.h),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> fetchProfile() async {
@@ -47,6 +136,11 @@ class EditProfileController extends GetxController {
         phoneController.text = data['mobile'] ?? '';
         gradeController.text = data['class_grade'] ?? '';
         bioController.text = data['about_me'] ?? '';
+
+        // Load profile image URL if available
+        if (data['profile_image'] != null && data['profile_image'].toString().isNotEmpty) {
+          profileImageUrl.value = data['profile_image'].toString();
+        }
       }
     } catch (e) {
       log("Fetch profile error: $e");
@@ -62,22 +156,38 @@ class EditProfileController extends GetxController {
       final userId = getBox.read(USER_ID);
       if (userId == null) return;
 
+      // Build FormData for multipart upload
+      final formData = DIO.FormData.fromMap({
+        "user_id": int.tryParse(userId.toString()) ?? 0,
+        "full_name": nameController.text.trim(),
+        "email": emailController.text.trim(),
+        "mobile": phoneController.text.trim(),
+        "address": "",
+        "class_grade": gradeController.text.trim(),
+        "about_me": bioController.text.trim(),
+        if (selectedImageFile.value != null)
+          "profile_image": await DIO.MultipartFile.fromFile(
+            selectedImageFile.value!.path,
+            filename: 'profile_${userId}.jpg',
+          ),
+      });
+
       final response = await dioPost(
         endUrl: "/update-profile.php",
-        data: {
-          "user_id": int.tryParse(userId.toString()) ?? 0,
-          "full_name": nameController.text.trim(),
-          "email": emailController.text.trim(),
-          "mobile": phoneController.text.trim(),
-          "address": "",
-          "class_grade": gradeController.text.trim(),
-          "about_me": bioController.text.trim(),
-        },
+        data: formData,
+        sendFile: true,
       );
 
       log("Save Profile Response: ${response.data}");
 
       if (response.data['status'] == true) {
+        // If we uploaded a new image, update the profile image URL
+        // so the UI shows it immediately
+        if (response.data['profile_image'] != null) {
+          profileImageUrl.value = response.data['profile_image'].toString();
+        }
+        selectedImageFile.value = null;
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(children: [
@@ -209,48 +319,88 @@ class EditProfileView extends StatelessWidget {
                 SizedBox(height: 14.h),
                 ShimmerWidget.formField(height: 100),
               ]),
-            )
-          : SingleChildScrollView(
+            )            : SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.all(20.r),
               child: Column(children: [
-                // Avatar
+                // Avatar (tappable)
                 Center(
-                  child: Stack(children: [
-                    Container(
-                      width: 90.r,
-                      height: 90.r,
-                      decoration: BoxDecoration(
-                        gradient: AppColor.primaryGradient,
-                        shape: BoxShape.circle,
-                        boxShadow: [AppColor.buttonShadow],
-                      ),
-                      child: Center(
-                          child: Text(
+                  child: GestureDetector(
+                    onTap: () => controller.showImagePickerOptions(context),
+                    child: Stack(children: [
+                      Obx(() {
+                        // Show newly picked image
+                        if (controller.selectedImageFile.value != null) {
+                          return Container(
+                            width: 90.r,
+                            height: 90.r,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [AppColor.buttonShadow],
+                              image: DecorationImage(
+                                image: FileImage(controller.selectedImageFile.value!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        }
+                        // Show existing profile image from server
+                        if (controller.profileImageUrl.value != null) {
+                          return Container(
+                            width: 90.r,
+                            height: 90.r,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [AppColor.buttonShadow],
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                  _resolveImageUrl(controller.profileImageUrl.value!),
+                                ),
+                                fit: BoxFit.cover,
+                                onError: (_, __) {},
+                              ),
+                            ),
+                          );
+                        }
+                        // Fallback: initial letter avatar
+                        return Container(
+                          width: 90.r,
+                          height: 90.r,
+                          decoration: BoxDecoration(
+                            gradient: AppColor.primaryGradient,
+                            shape: BoxShape.circle,
+                            boxShadow: [AppColor.buttonShadow],
+                          ),
+                          child: Center(
+                            child: Text(
                               controller.nameController.text.isNotEmpty
-                                  ? controller.nameController.text[0]
-                                      .toUpperCase()
+                                  ? controller.nameController.text[0].toUpperCase()
                                   : 'U',
                               style: GoogleFonts.poppins(
-                                  fontSize: 36.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white))),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(6.r),
-                        decoration: BoxDecoration(
-                          color: AppColor.cardColor,
-                          shape: BoxShape.circle,
-                          boxShadow: [AppColor.softShadow],
+                                fontSize: 36.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(6.r),
+                          decoration: BoxDecoration(
+                            color: AppColor.cardColor,
+                            shape: BoxShape.circle,
+                            boxShadow: [AppColor.softShadow],
+                          ),
+                          child: Icon(Icons.camera_alt_rounded,
+                              color: AppColor.buttonOneColor, size: 18.sp),
                         ),
-                        child: Icon(Icons.camera_alt_rounded,
-                            color: AppColor.buttonOneColor, size: 18.sp),
                       ),
-                    ),
-                  ]),
+                    ]),
+                  ),
                 ),
                 SizedBox(height: 28.h),
 
@@ -282,6 +432,10 @@ class EditProfileView extends StatelessWidget {
               ]),
             ),
     ));
+  }
+
+  String _resolveImageUrl(String url) {
+    return url.toLowerCase().startsWith('http') ? url : '$BASE_URL/$url';
   }
 
   Widget _buildField(String label, TextEditingController controller,
