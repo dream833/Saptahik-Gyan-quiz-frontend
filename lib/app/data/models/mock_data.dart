@@ -8,8 +8,6 @@ library;
 
 enum QuestionType { veryShort, explanatory, essay }
 
-enum SelectionCategory { madhyamik, classXI, higherSecondary }
-
 // ───────────────────────────────────────────
 //  MODELS
 // ───────────────────────────────────────────
@@ -69,41 +67,6 @@ class Question {
   });
 
   bool get isCorrect => selectedIndex == correctIndex.toString();
-
-  static List<Question> generateSample() {
-    return [
-      Question(
-        id: 1,
-        text: "What is the capital of Bangladesh?",
-        options: ["Dhaka", "Chittagong", "Khulna", "Rajshahi"],
-        correctIndex: 0,
-      ),
-      Question(
-        id: 2,
-        text: "Which planet is known as the Red Planet?",
-        options: ["Venus", "Mars", "Jupiter", "Saturn"],
-        correctIndex: 1,
-      ),
-      Question(
-        id: 3,
-        text: "Who wrote 'The Iliad'?",
-        options: ["Plato", "Aristotle", "Homer", "Socrates"],
-        correctIndex: 2,
-      ),
-      Question(
-        id: 4,
-        text: "What is the chemical symbol for water?",
-        options: ["H2O", "CO2", "NaCl", "O2"],
-        correctIndex: 0,
-      ),
-      Question(
-        id: 5,
-        text: "Which is the largest ocean?",
-        options: ["Atlantic", "Indian", "Arctic", "Pacific"],
-        correctIndex: 3,
-      ),
-    ];
-  }
 }
 
 class MockTestInfo {
@@ -138,20 +101,6 @@ class SuggestionItem {
     required this.content,
     this.subjectId,
     this.classId,
-  });
-}
-
-class PreviousYearPaper {
-  final int id;
-  final int year;
-  final List<AppSubject> subjects;
-  final Map<int, List<Question>> questionsBySubject;
-
-  PreviousYearPaper({
-    required this.id,
-    required this.year,
-    required this.subjects,
-    required this.questionsBySubject,
   });
 }
 
@@ -197,8 +146,7 @@ class PreviousYearCategory {
     required this.questionsBySubject,
   });
 
-  List<AppSubject> subjectsForYear(int year) =>
-      subjectsByYear[year] ?? [];
+  List<AppSubject> subjectsForYear(int year) => subjectsByYear[year] ?? [];
 
   List<QAItem> questionsForSubject(int year, int subjectId) {
     final key = '$year-$subjectId';
@@ -231,25 +179,7 @@ class PreviousTestRecord {
 // ───────────────────────────────────────────
 
 class MockData {
-  // 🔹 Classes
-  static final classList = [
-    AppClass(id: 9, name: "Class 9", grade: "9"),
-    AppClass(id: 10, name: "Class 10", grade: "10"),
-    AppClass(id: 11, name: "Class 11", grade: "11"),
-    AppClass(id: 12, name: "Class 12", grade: "12"),
-  ];
-  static final allClasses = [
-    AppClass(id: 5, name: "Class 5", grade: "5"),
-    AppClass(id: 6, name: "Class 6", grade: "6"),
-    AppClass(id: 7, name: "Class 7", grade: "7"),
-    AppClass(id: 8, name: "Class 8", grade: "8"),
-    AppClass(id: 9, name: "Class 9", grade: "9"),
-    AppClass(id: 10, name: "Class 10", grade: "10"),
-    AppClass(id: 11, name: "Class 11", grade: "11"),
-    AppClass(id: 12, name: "Class 12", grade: "12"),
-  ];
-
-  // 🔹 Subjects
+  // 🔹 Subjects (used by PYQ helpers)
   static final subjects = [
     AppSubject(id: 1, name: "Bangla", icon: '📖'),
     AppSubject(id: 2, name: "English", icon: '📘'),
@@ -257,41 +187,6 @@ class MockData {
     AppSubject(id: 4, name: "Science", icon: '🔬'),
     AppSubject(id: 5, name: "History", icon: '🏛️'),
     AppSubject(id: 6, name: "Geography", icon: '🌍'),
-  ];
-
-  // 🔹 Chapters
-  static final chapters = List.generate(
-    6,
-    (i) => AppChapter(id: i + 1, name: "Chapter ${i + 1}"),
-  );
-
-  // 🔹 Mock Test Sets for All Mock Tests
-  static final mockTestSets = List.generate(
-    5,
-    (i) => MockTestSet(
-      id: i + 1,
-      name: "Set-${i + 1}",
-      questions: generateQuestions(),
-    ),
-  );
-
-  // 🔹 Mock Test Info list for Daily Mock Test
-  static final dailyMockTests = [
-    MockTestInfo(
-      id: 1,
-      name: "Daily Quiz 1",
-      description: "Basic concepts from today's lessons",
-    ),
-    MockTestInfo(
-      id: 2,
-      name: "Daily Quiz 2",
-      description: "Mixed questions from weekly syllabus",
-    ),
-    MockTestInfo(
-      id: 3,
-      name: "Daily Quiz 3",
-      description: "Advanced problem solving",
-    ),
   ];
 
   // 🔹 Suggestion items (organized by class & subject)
@@ -473,8 +368,14 @@ class MockData {
 
   // ── Helpers for PYQ questions ──
 
-  static QAItem _pyqQA(int id, String q, String a, QuestionType t,
-      int subId, int yr) {
+  static QAItem _pyqQA(
+    int id,
+    String q,
+    String a,
+    QuestionType t,
+    int subId,
+    int yr,
+  ) {
     return QAItem(
       id: id,
       question: q,
@@ -489,70 +390,139 @@ class MockData {
   static List<QAItem> _madhyamikQuestions(int year, int subId) {
     final all = <QAItem>[
       // Bangla (subId: 1)
-      _pyqQA(1001,
-          "Write a paragraph on 'Importance of Education' in Bangla.",
-          "শিক্ষার গুরুত্ব অপরিসীম। শিক্ষা মানুষকে আলোকিত করে, অন্ধকার দূর করে। শিক্ষার মাধ্যমে মানুষ সঠিক-ভুলের পার্থক্য বুঝতে পারে এবং সমাজে ইতিবাচক ভূমিকা রাখতে পারে। শিক্ষাই জাতির মেরুদণ্ড।",
-          QuestionType.veryShort, 1, year),
-      _pyqQA(1002,
-          "Explain the main theme of the poem 'Kandari Hushiar'.",
-          "The poem 'Kandari Hushiar' by Kazi Nazrul Islam calls for awakening and alertness. It uses the metaphor of a boat journey to represent the nation's struggle, urging everyone to stay vigilant against oppression and work together for a better future.",
-          QuestionType.explanatory, 1, year),
-      _pyqQA(1003,
-          "Write a critical analysis of the short story 'Television' by Annada Shankar Ray.",
-          "'Television' satirizes the invasion of modern technology into traditional Bengali households. Through the grandmother's perspective, the story explores how television replaces human interaction and storytelling. Ray uses irony and humor to critique blind adoption of technology while highlighting the value of oral traditions and family bonds.",
-          QuestionType.essay, 1, year),
+      _pyqQA(
+        1001,
+        "Write a paragraph on 'Importance of Education' in Bangla.",
+        "শিক্ষার গুরুত্ব অপরিসীম। শিক্ষা মানুষকে আলোকিত করে, অন্ধকার দূর করে। শিক্ষার মাধ্যমে মানুষ সঠিক-ভুলের পার্থক্য বুঝতে পারে এবং সমাজে ইতিবাচক ভূমিকা রাখতে পারে। শিক্ষাই জাতির মেরুদণ্ড।",
+        QuestionType.veryShort,
+        1,
+        year,
+      ),
+      _pyqQA(
+        1002,
+        "Explain the main theme of the poem 'Kandari Hushiar'.",
+        "The poem 'Kandari Hushiar' by Kazi Nazrul Islam calls for awakening and alertness. It uses the metaphor of a boat journey to represent the nation's struggle, urging everyone to stay vigilant against oppression and work together for a better future.",
+        QuestionType.explanatory,
+        1,
+        year,
+      ),
+      _pyqQA(
+        1003,
+        "Write a critical analysis of the short story 'Television' by Annada Shankar Ray.",
+        "'Television' satirizes the invasion of modern technology into traditional Bengali households. Through the grandmother's perspective, the story explores how television replaces human interaction and storytelling. Ray uses irony and humor to critique blind adoption of technology while highlighting the value of oral traditions and family bonds.",
+        QuestionType.essay,
+        1,
+        year,
+      ),
       // English (subId: 2)
-      _pyqQA(1004, "What is a clause? Give examples.",
-          "A clause is a group of words containing a subject and a predicate. Examples: 'She runs' (independent clause), 'because he was tired' (dependent clause).",
-          QuestionType.veryShort, 2, year),
-      _pyqQA(1005,
-          "Explain the central idea of the poem 'The Ball Poem'.",
-          "'The Ball Poem' by John Berryman explores the theme of loss and growing up. The boy loses his ball and realizes that loss is an inevitable part of life. The poem teaches that we must accept losses and move forward with maturity.",
-          QuestionType.explanatory, 2, year),
-      _pyqQA(1006,
-              "Discuss the character of the grandmother in Khushwant Singh's 'The Portrait of a Lady'.",
-              "The grandmother in 'The Portrait of a Lady' is portrayed as a deeply spiritual and selfless woman. She is described as old, wrinkled, and always busy with her beads and prayers. Despite the generation gap and modernization, she maintains her traditional values and unconditional love for her grandson. Her silent departure symbolizes the passing of an era.",
-              QuestionType.essay, 2, year),
+      _pyqQA(
+        1004,
+        "What is a clause? Give examples.",
+        "A clause is a group of words containing a subject and a predicate. Examples: 'She runs' (independent clause), 'because he was tired' (dependent clause).",
+        QuestionType.veryShort,
+        2,
+        year,
+      ),
+      _pyqQA(
+        1005,
+        "Explain the central idea of the poem 'The Ball Poem'.",
+        "'The Ball Poem' by John Berryman explores the theme of loss and growing up. The boy loses his ball and realizes that loss is an inevitable part of life. The poem teaches that we must accept losses and move forward with maturity.",
+        QuestionType.explanatory,
+        2,
+        year,
+      ),
+      _pyqQA(
+        1006,
+        "Discuss the character of the grandmother in Khushwant Singh's 'The Portrait of a Lady'.",
+        "The grandmother in 'The Portrait of a Lady' is portrayed as a deeply spiritual and selfless woman. She is described as old, wrinkled, and always busy with her beads and prayers. Despite the generation gap and modernization, she maintains her traditional values and unconditional love for her grandson. Her silent departure symbolizes the passing of an era.",
+        QuestionType.essay,
+        2,
+        year,
+      ),
       // Math (subId: 3)
-      _pyqQA(1007, "Find the value of x: 2x + 5 = 15",
-          "2x + 5 = 15\n2x = 15 - 5\n2x = 10\nx = 5",
-          QuestionType.veryShort, 3, year),
-      _pyqQA(1008,
-          "Explain the concept of quadratic equations with an example.",
-          "A quadratic equation is of the form ax² + bx + c = 0. Example: x² - 5x + 6 = 0. Solving: (x-2)(x-3) = 0, so x = 2 or x = 3.",
-          QuestionType.explanatory, 3, year),
-      _pyqQA(1009,
-          "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.",
-          "Let speed = x km/h. Time = 360/x. With x+5 speed: 360/(x+5). Difference = 1 hour.\n360/x - 360/(x+5) = 1\n360(x+5) - 360x = x(x+5)\n1800 = x² + 5x\nx² + 5x - 1800 = 0\n(x - 40)(x + 45) = 0\nx = 40 km/h (positive value)",
-          QuestionType.essay, 3, year),
+      _pyqQA(
+        1007,
+        "Find the value of x: 2x + 5 = 15",
+        "2x + 5 = 15\n2x = 15 - 5\n2x = 10\nx = 5",
+        QuestionType.veryShort,
+        3,
+        year,
+      ),
+      _pyqQA(
+        1008,
+        "Explain the concept of quadratic equations with an example.",
+        "A quadratic equation is of the form ax² + bx + c = 0. Example: x² - 5x + 6 = 0. Solving: (x-2)(x-3) = 0, so x = 2 or x = 3.",
+        QuestionType.explanatory,
+        3,
+        year,
+      ),
+      _pyqQA(
+        1009,
+        "A train travels 360 km at a uniform speed. If the speed had been 5 km/h more, it would have taken 1 hour less. Find the speed of the train.",
+        "Let speed = x km/h. Time = 360/x. With x+5 speed: 360/(x+5). Difference = 1 hour.\n360/x - 360/(x+5) = 1\n360(x+5) - 360x = x(x+5)\n1800 = x² + 5x\nx² + 5x - 1800 = 0\n(x - 40)(x + 45) = 0\nx = 40 km/h (positive value)",
+        QuestionType.essay,
+        3,
+        year,
+      ),
       // Science (subId: 4)
-      _pyqQA(1010, "What is the chemical formula of common salt?",
-          "The chemical formula of common salt (sodium chloride) is NaCl.",
-          QuestionType.veryShort, 4, year),
-      _pyqQA(1011,
-          "Explain the process of photosynthesis.",
-          "Photosynthesis is the process by which green plants convert light energy into chemical energy. 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂. It occurs in chloroplasts using chlorophyll and requires sunlight, water, and carbon dioxide.",
-          QuestionType.explanatory, 4, year),
-      _pyqQA(1012,
-          "Describe the structure and function of the human heart.",
-          "The human heart is a four-chambered muscular organ (two atria, two ventricles). It pumps blood throughout the body. The right side pumps deoxygenated blood to the lungs, while the left side pumps oxygenated blood to the body. It has valves to prevent backflow and is protected by the pericardium.",
-          QuestionType.essay, 4, year),
+      _pyqQA(
+        1010,
+        "What is the chemical formula of common salt?",
+        "The chemical formula of common salt (sodium chloride) is NaCl.",
+        QuestionType.veryShort,
+        4,
+        year,
+      ),
+      _pyqQA(
+        1011,
+        "Explain the process of photosynthesis.",
+        "Photosynthesis is the process by which green plants convert light energy into chemical energy. 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂. It occurs in chloroplasts using chlorophyll and requires sunlight, water, and carbon dioxide.",
+        QuestionType.explanatory,
+        4,
+        year,
+      ),
+      _pyqQA(
+        1012,
+        "Describe the structure and function of the human heart.",
+        "The human heart is a four-chambered muscular organ (two atria, two ventricles). It pumps blood throughout the body. The right side pumps deoxygenated blood to the lungs, while the left side pumps oxygenated blood to the body. It has valves to prevent backflow and is protected by the pericardium.",
+        QuestionType.essay,
+        4,
+        year,
+      ),
       // History (subId: 5)
-      _pyqQA(1013, "When did the French Revolution start?",
-          "The French Revolution started in 1789 with the storming of the Bastille on July 14.",
-          QuestionType.veryShort, 5, year),
-      _pyqQA(1014,
-          "Explain the causes of World War II.",
-          "Causes of WWII: 1) Treaty of Versailles' harsh terms on Germany 2) Rise of Fascism and Nazism 3) Economic depression 4) Failure of the League of Nations 5) Policy of appeasement 6) Japanese expansionism.",
-          QuestionType.explanatory, 5, year),
+      _pyqQA(
+        1013,
+        "When did the French Revolution start?",
+        "The French Revolution started in 1789 with the storming of the Bastille on July 14.",
+        QuestionType.veryShort,
+        5,
+        year,
+      ),
+      _pyqQA(
+        1014,
+        "Explain the causes of World War II.",
+        "Causes of WWII: 1) Treaty of Versailles' harsh terms on Germany 2) Rise of Fascism and Nazism 3) Economic depression 4) Failure of the League of Nations 5) Policy of appeasement 6) Japanese expansionism.",
+        QuestionType.explanatory,
+        5,
+        year,
+      ),
       // Geography (subId: 6)
-      _pyqQA(1015, "What is the Richter scale?",
-          "The Richter scale measures earthquake magnitude logarithmically. Each whole number increase represents a tenfold increase in amplitude.",
-          QuestionType.veryShort, 6, year),
-      _pyqQA(1016,
-          "Explain the water cycle and its importance.",
-          "The water cycle: evaporation → condensation → precipitation → collection. It distributes water globally, regulates climate, and supports all life forms.",
-          QuestionType.explanatory, 6, year),
+      _pyqQA(
+        1015,
+        "What is the Richter scale?",
+        "The Richter scale measures earthquake magnitude logarithmically. Each whole number increase represents a tenfold increase in amplitude.",
+        QuestionType.veryShort,
+        6,
+        year,
+      ),
+      _pyqQA(
+        1016,
+        "Explain the water cycle and its importance.",
+        "The water cycle: evaporation → condensation → precipitation → collection. It distributes water globally, regulates climate, and supports all life forms.",
+        QuestionType.explanatory,
+        6,
+        year,
+      ),
     ];
     // Filter by year to vary questions
     final seed = year * subId;
@@ -561,25 +531,46 @@ class MockData {
 
   static List<QAItem> _class11Questions(int year, int subId) {
     final all = <QAItem>[
-      _pyqQA(2001,
-          "Define sets and give an example of a universal set.",
-          "A set is a well-defined collection of objects. Example of universal set: U = {1, 2, 3, 4, 5} for sets A = {1, 2} and B = {3, 4}.",
-          QuestionType.veryShort, 1, year),
-      _pyqQA(2002,
-          "Explain the fundamental theorem of arithmetic.",
-          "The fundamental theorem of arithmetic states that every integer greater than 1 can be uniquely expressed as a product of prime numbers, order notwithstanding.",
-          QuestionType.explanatory, 1, year),
-      _pyqQA(2003,
-          "Derive the formula for the sum of n terms of an arithmetic progression.",
-          "Let AP be a, a+d, a+2d,... a+(n-1)d. Sum S = n/2[2a + (n-1)d]. Proof: Write terms forward and backward, add them to get 2S = n[2a + (n-1)d], hence S = n/2[2a + (n-1)d].",
-          QuestionType.essay, 1, year),
-      _pyqQA(2004, "What is a redox reaction?",
-          "A redox reaction involves simultaneous oxidation and reduction. Example: Zn + CuSO₄ → ZnSO₄ + Cu (Zn oxidizes, Cu²⁺ reduces).",
-          QuestionType.veryShort, 2, year),
-      _pyqQA(2005,
-          "Explain Newton's laws of motion.",
-          "First law: Objects maintain state unless acted upon. Second law: F=ma. Third law: Every action has equal and opposite reaction.",
-          QuestionType.explanatory, 2, year),
+      _pyqQA(
+        2001,
+        "Define sets and give an example of a universal set.",
+        "A set is a well-defined collection of objects. Example of universal set: U = {1, 2, 3, 4, 5} for sets A = {1, 2} and B = {3, 4}.",
+        QuestionType.veryShort,
+        1,
+        year,
+      ),
+      _pyqQA(
+        2002,
+        "Explain the fundamental theorem of arithmetic.",
+        "The fundamental theorem of arithmetic states that every integer greater than 1 can be uniquely expressed as a product of prime numbers, order notwithstanding.",
+        QuestionType.explanatory,
+        1,
+        year,
+      ),
+      _pyqQA(
+        2003,
+        "Derive the formula for the sum of n terms of an arithmetic progression.",
+        "Let AP be a, a+d, a+2d,... a+(n-1)d. Sum S = n/2[2a + (n-1)d]. Proof: Write terms forward and backward, add them to get 2S = n[2a + (n-1)d], hence S = n/2[2a + (n-1)d].",
+        QuestionType.essay,
+        1,
+        year,
+      ),
+      _pyqQA(
+        2004,
+        "What is a redox reaction?",
+        "A redox reaction involves simultaneous oxidation and reduction. Example: Zn + CuSO₄ → ZnSO₄ + Cu (Zn oxidizes, Cu²⁺ reduces).",
+        QuestionType.veryShort,
+        2,
+        year,
+      ),
+      _pyqQA(
+        2005,
+        "Explain Newton's laws of motion.",
+        "First law: Objects maintain state unless acted upon. Second law: F=ma. Third law: Every action has equal and opposite reaction.",
+        QuestionType.explanatory,
+        2,
+        year,
+      ),
     ];
     final seed = year * subId;
     return all.where((q) => (q.id + seed) % 2 == 0).take(2).toList();
@@ -587,31 +578,55 @@ class MockData {
 
   static List<QAItem> _class12Questions(int year, int subId) {
     final all = <QAItem>[
-      _pyqQA(3001, "What is an electrochemistry cell?",
-          "An electrochemical cell converts chemical energy into electrical energy. Example: Daniell cell consists of Zn and Cu electrodes with their respective sulfate solutions.",
-          QuestionType.veryShort, 1, year),
-      _pyqQA(3002,
-          "Explain the concept of electromagnetic induction.",
-          "Electromagnetic induction is the production of EMF in a conductor when the magnetic flux through it changes. Faraday's laws describe this phenomenon. Used in generators and transformers.",
-          QuestionType.explanatory, 1, year),
-      _pyqQA(3003,
-          "Discuss the structure and function of DNA.",
-          "DNA has a double helix structure with complementary base pairing (A-T, G-C). It stores genetic information, replicates during cell division, and directs protein synthesis through transcription and translation.",
-          QuestionType.essay, 1, year),
-      _pyqQA(3004, "What is the derivative of x²?",
-          "The derivative of x² is 2x (using the power rule: d/dx(xⁿ) = nxⁿ⁻¹).",
-          QuestionType.veryShort, 2, year),
-      _pyqQA(3005,
-              "Explain the concept of resonance in chemistry.",
-              "Resonance describes the delocalization of electrons in molecules where multiple Lewis structures can be drawn. The actual structure is a hybrid of all resonance forms. Example: Benzene has two resonance structures.",
-              QuestionType.explanatory, 2, year),
+      _pyqQA(
+        3001,
+        "What is an electrochemistry cell?",
+        "An electrochemical cell converts chemical energy into electrical energy. Example: Daniell cell consists of Zn and Cu electrodes with their respective sulfate solutions.",
+        QuestionType.veryShort,
+        1,
+        year,
+      ),
+      _pyqQA(
+        3002,
+        "Explain the concept of electromagnetic induction.",
+        "Electromagnetic induction is the production of EMF in a conductor when the magnetic flux through it changes. Faraday's laws describe this phenomenon. Used in generators and transformers.",
+        QuestionType.explanatory,
+        1,
+        year,
+      ),
+      _pyqQA(
+        3003,
+        "Discuss the structure and function of DNA.",
+        "DNA has a double helix structure with complementary base pairing (A-T, G-C). It stores genetic information, replicates during cell division, and directs protein synthesis through transcription and translation.",
+        QuestionType.essay,
+        1,
+        year,
+      ),
+      _pyqQA(
+        3004,
+        "What is the derivative of x²?",
+        "The derivative of x² is 2x (using the power rule: d/dx(xⁿ) = nxⁿ⁻¹).",
+        QuestionType.veryShort,
+        2,
+        year,
+      ),
+      _pyqQA(
+        3005,
+        "Explain the concept of resonance in chemistry.",
+        "Resonance describes the delocalization of electrons in molecules where multiple Lewis structures can be drawn. The actual structure is a hybrid of all resonance forms. Example: Benzene has two resonance structures.",
+        QuestionType.explanatory,
+        2,
+        year,
+      ),
     ];
     final seed = year * subId;
     return all.where((q) => (q.id + seed) % 2 == 0).take(3).toList();
   }
 
   static Map<int, List<AppSubject>> _pyqSubjectsByYear(
-      List<int> years, List<int> subIds) {
+    List<int> years,
+    List<int> subIds,
+  ) {
     final out = <int, List<AppSubject>>{};
     for (final y in years) {
       out[y] = subjects.where((s) => subIds.contains(s.id)).toList();
@@ -620,9 +635,10 @@ class MockData {
   }
 
   static Map<String, List<QAItem>> _pyqQuestionsByYear(
-      List<int> years,
-      List<int> subIds,
-      List<QAItem> Function(int year, int subId) questionsFn) {
+    List<int> years,
+    List<int> subIds,
+    List<QAItem> Function(int year, int subId) questionsFn,
+  ) {
     final out = <String, List<QAItem>>{};
     for (final y in years) {
       for (final s in subIds) {
@@ -639,9 +655,15 @@ class MockData {
       name: "Madhyamik",
       subtitle: "Class 10 board exam",
       years: [2020, 2021, 2022, 2023, 2024],
-      subjectsByYear: _pyqSubjectsByYear([2020, 2021, 2022, 2023, 2024], [1, 2, 3, 4, 5, 6]),
+      subjectsByYear: _pyqSubjectsByYear(
+        [2020, 2021, 2022, 2023, 2024],
+        [1, 2, 3, 4, 5, 6],
+      ),
       questionsBySubject: _pyqQuestionsByYear(
-          [2020, 2021, 2022, 2023, 2024], [1, 2, 3, 4, 5, 6], _madhyamikQuestions),
+        [2020, 2021, 2022, 2023, 2024],
+        [1, 2, 3, 4, 5, 6],
+        _madhyamikQuestions,
+      ),
     ),
     // Class XI - subjects 1, 2 (Math/Science focus)
     PreviousYearCategory(
@@ -650,7 +672,10 @@ class MockData {
       years: [2021, 2022, 2023, 2024],
       subjectsByYear: _pyqSubjectsByYear([2021, 2022, 2023, 2024], [1, 2]),
       questionsBySubject: _pyqQuestionsByYear(
-          [2021, 2022, 2023, 2024], [1, 2], _class11Questions),
+        [2021, 2022, 2023, 2024],
+        [1, 2],
+        _class11Questions,
+      ),
     ),
     // Higher Secondary - Class 12, subjects 1, 2
     PreviousYearCategory(
@@ -658,9 +683,14 @@ class MockData {
       subtitle: "Class 12 board exam",
       years: [2019, 2020, 2021, 2022, 2023, 2024],
       subjectsByYear: _pyqSubjectsByYear(
-          [2019, 2020, 2021, 2022, 2023, 2024], [1, 2]),
+        [2019, 2020, 2021, 2022, 2023, 2024],
+        [1, 2],
+      ),
       questionsBySubject: _pyqQuestionsByYear(
-          [2019, 2020, 2021, 2022, 2023, 2024], [1, 2], _class12Questions),
+        [2019, 2020, 2021, 2022, 2023, 2024],
+        [1, 2],
+        _class12Questions,
+      ),
     ),
   ];
 
@@ -683,7 +713,8 @@ class MockData {
     ),
     QAItem(
       id: 2,
-      question: "Explain the significance of 'Bangla Noboborsho' (Bengali New Year).",
+      question:
+          "Explain the significance of 'Bangla Noboborsho' (Bengali New Year).",
       answer:
           "Bangla Noboborsho, celebrated on 14-15 April, marks the first day of the Bengali calendar. It symbolizes new beginnings, cultural unity, and is celebrated with traditional fairs, music, and the iconic 'Haal Khata' ritual.",
       type: QuestionType.explanatory,
@@ -883,7 +914,8 @@ class MockData {
     ),
     QAItem(
       id: 21,
-      question: "Explain the causes and effects of global warming on Earth's geography.",
+      question:
+          "Explain the causes and effects of global warming on Earth's geography.",
       answer:
           "Global warming, driven by greenhouse gas emissions, is reshaping Earth's geography. Causes include fossil fuel burning, deforestation, and industrial agriculture. Effects include: melting glaciers and ice sheets causing sea level rise, changing coastlines, desertification of fertile lands, altered precipitation patterns leading to floods and droughts, shifting climate zones affecting agriculture, and loss of biodiversity as species struggle to adapt. Coastal cities face particular risk from rising sea levels.",
       type: QuestionType.essay,
@@ -903,213 +935,4 @@ class MockData {
     ),
   ];
 
-  // 🔹 Previous test records with date & score
-  static final previousTestRecords = [
-    PreviousTestRecord(
-      name: "Daily Quiz 1",
-      date: "12 Jun 2026",
-      totalQuestions: 10,
-      score: 80,
-    ),
-    PreviousTestRecord(
-      name: "Daily Quiz 2",
-      date: "11 Jun 2026",
-      totalQuestions: 10,
-      score: 70,
-    ),
-    PreviousTestRecord(
-      name: "Set-1 Test",
-      date: "10 Jun 2026",
-      totalQuestions: 10,
-      score: 90,
-    ),
-  ];
-
-  // 🔹 Question pools for All Mock Tests
-  static final _mtPool1 = [
-    Question(id: 1, text: "What is the capital of Bangladesh?", options: ["Dhaka", "Chittagong", "Khulna", "Rajshahi"], correctIndex: 0),
-    Question(id: 2, text: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Saturn"], correctIndex: 1),
-    Question(id: 3, text: "Who wrote 'The Iliad'?", options: ["Plato", "Aristotle", "Homer", "Socrates"], correctIndex: 2),
-    Question(id: 4, text: "What is the chemical symbol for water?", options: ["H2O", "CO2", "NaCl", "O2"], correctIndex: 0),
-    Question(id: 5, text: "Which is the largest ocean?", options: ["Atlantic", "Indian", "Arctic", "Pacific"], correctIndex: 3),
-    Question(id: 6, text: "What is the square root of 144?", options: ["10", "11", "12", "13"], correctIndex: 2),
-  ];
-
-  static final _mtPool2 = [
-    Question(id: 7, text: "Which gas do plants absorb during photosynthesis?", options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"], correctIndex: 2),
-    Question(id: 8, text: "Who painted the Mona Lisa?", options: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"], correctIndex: 1),
-    Question(id: 9, text: "What is the speed of light?", options: ["3 × 10⁶ m/s", "3 × 10⁸ m/s", "3 × 10¹⁰ m/s", "3 × 10¹² m/s"], correctIndex: 1),
-    Question(id: 10, text: "Which country has the largest population?", options: ["USA", "India", "China", "Indonesia"], correctIndex: 1),
-    Question(id: 11, text: "What is the freezing point of water?", options: ["0°C", "32°C", "100°C", "-1°C"], correctIndex: 0),
-    Question(id: 12, text: "Which animal is known as the King of the Jungle?", options: ["Tiger", "Lion", "Elephant", "Bear"], correctIndex: 1),
-  ];
-
-  static final _mtPool3 = [
-    Question(id: 13, text: "What is the tallest mountain in the world?", options: ["K2", "Everest", "Kangchenjunga", "Lhotse"], correctIndex: 1),
-    Question(id: 14, text: "Which gas is most abundant in Earth's atmosphere?", options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Argon"], correctIndex: 2),
-    Question(id: 15, text: "Who is known as the Father of Computers?", options: ["Alan Turing", "Charles Babbage", "Bill Gates", "Steve Jobs"], correctIndex: 1),
-    Question(id: 16, text: "Which is the largest continent?", options: ["Africa", "North America", "Asia", "Europe"], correctIndex: 2),
-    Question(id: 17, text: "What is the SI unit of force?", options: ["Joule", "Newton", "Watt", "Pascal"], correctIndex: 1),
-    Question(id: 18, text: "Which blood type is the universal donor?", options: ["Type A", "Type B", "Type AB", "Type O"], correctIndex: 3),
-  ];
-
-  static final _mtPools = [_mtPool1, _mtPool2, _mtPool3];
-
-  /// Generates questions for a set by cycling through pools
-  static List<Question> _generateQuestionsForSet(int setId, {int count = 5}) {
-    final pool = _mtPools[setId % 3];
-    final out = <Question>[];
-    for (int i = 0; i < count; i++) {
-      final q = pool[i % pool.length];
-      out.add(Question(
-        id: setId * 100 + q.id,
-        text: q.text,
-        options: List.from(q.options),
-        correctIndex: q.correctIndex,
-      ));
-    }
-    return out;
-  }
-
-  // 🔹 All Mock Tests organized by class → subject → chapter → sets
-  static final allMockTestSets = _generateAllMockTestSets();
-
-  static List<MockTestSet> _generateAllMockTestSets() {
-    final sets = <MockTestSet>[];
-    int id = 1000;
-
-    // Class 9: Bangla(1), English(2), Math(3) → chapters 1-2 → 3 sets each
-    for (final sub in [1, 2, 3]) {
-      for (final ch in [1, 2]) {
-        for (int s = 1; s <= 3; s++) {
-          id++;
-          sets.add(MockTestSet(
-            id: id,
-            name: 'Set-$s',
-            questions: _generateQuestionsForSet(id),
-            classId: 9,
-            subjectId: sub,
-            chapterId: ch,
-          ));
-        }
-      }
-    }
-
-    // Class 10: Bangla(1), English(2), Science(4), History(5) → chapters 1-2 → 3 sets each
-    for (final sub in [1, 2, 4, 5]) {
-      for (final ch in [1, 2]) {
-        for (int s = 1; s <= 3; s++) {
-          id++;
-          sets.add(MockTestSet(
-            id: id,
-            name: 'Set-$s',
-            questions: _generateQuestionsForSet(id),
-            classId: 10,
-            subjectId: sub,
-            chapterId: ch,
-          ));
-        }
-      }
-    }
-
-    return sets;
-  }
-
-  /// Get available class IDs that have mock test sets
-  static Set<int> get mockTestClassIds =>
-      allMockTestSets.map((s) => s.classId!).toSet();
-
-  /// Get available subject IDs for a class
-  static List<int> subjectIdsForClass(int classId) =>
-      allMockTestSets
-          .where((s) => s.classId == classId)
-          .map((s) => s.subjectId!)
-          .toSet()
-          .toList()
-        ..sort();
-
-  /// Get available chapter IDs for a class and subject
-  static List<int> chapterIdsForClassSubject(int classId, int subjectId) =>
-      allMockTestSets
-          .where((s) => s.classId == classId && s.subjectId == subjectId)
-          .map((s) => s.chapterId!)
-          .toSet()
-          .toList()
-        ..sort();
-
-  /// Get all sets for a class, subject, and chapter
-  static List<MockTestSet> setsFor(int classId, int subjectId, int chapterId) =>
-      allMockTestSets
-          .where((s) =>
-              s.classId == classId &&
-              s.subjectId == subjectId &&
-              s.chapterId == chapterId)
-          .toList()
-        ..sort((a, b) => a.id.compareTo(b.id));
-
-  // 🔹 Generate sample questions for a mock test (Daily Mock Test)
-  static List<Question> generateQuestions() {
-    return [
-      Question(
-        id: 1,
-        text: "What is the capital of Bangladesh?",
-        options: ["Dhaka", "Chittagong", "Khulna", "Rajshahi"],
-        correctIndex: 0,
-      ),
-      Question(
-        id: 2,
-        text: "Which planet is known as the Red Planet?",
-        options: ["Venus", "Mars", "Jupiter", "Saturn"],
-        correctIndex: 1,
-      ),
-      Question(
-        id: 3,
-        text: "Who wrote 'The Iliad'?",
-        options: ["Plato", "Aristotle", "Homer", "Socrates"],
-        correctIndex: 2,
-      ),
-      Question(
-        id: 4,
-        text: "What is the chemical symbol for water?",
-        options: ["H2O", "CO2", "NaCl", "O2"],
-        correctIndex: 0,
-      ),
-      Question(
-        id: 5,
-        text: "Which is the largest ocean?",
-        options: ["Atlantic", "Indian", "Arctic", "Pacific"],
-        correctIndex: 3,
-      ),
-      Question(
-        id: 6,
-        text: "What is the square root of 144?",
-        options: ["10", "11", "12", "13"],
-        correctIndex: 2,
-      ),
-      Question(
-        id: 7,
-        text: "Which gas do plants absorb during photosynthesis?",
-        options: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
-        correctIndex: 2,
-      ),
-      Question(
-        id: 8,
-        text: "Who painted the Mona Lisa?",
-        options: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"],
-        correctIndex: 1,
-      ),
-      Question(
-        id: 9,
-        text: "What is the speed of light?",
-        options: ["3 × 10⁶ m/s", "3 × 10⁸ m/s", "3 × 10¹⁰ m/s", "3 × 10¹² m/s"],
-        correctIndex: 1,
-      ),
-      Question(
-        id: 10,
-        text: "Which country has the largest population?",
-        options: ["USA", "India", "China", "Indonesia"],
-        correctIndex: 1,
-      ),
-    ];
-  }
 }

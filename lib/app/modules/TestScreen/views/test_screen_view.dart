@@ -27,21 +27,91 @@ class TestScreenView extends StatelessWidget {
   Widget _buildQuizScreen(TestScreenController controller) {
     return DecorativeBackground(
       child: SafeArea(
-        child: Column(
-          children: [
-            // Top bar: Question number + Timer
-            _buildTopBar(controller),
-            // Timer progress bar
-            _buildTimerBar(controller),
-            // Question content
-            Expanded(
-              child: _buildQuestionContent(controller),
-            ),
-            // Bottom navigation
-            _buildBottomNav(controller),
-          ],
-        ),
+        child: Obx(() {
+          if (controller.questions.isEmpty) {
+            return _buildEmptyQuestions(controller);
+          }
+          return Column(
+            children: [
+              // Top bar: Question number + Timer
+              _buildTopBar(controller),
+              // Timer progress bar
+              _buildTimerBar(controller),
+              // Question content
+              Expanded(
+                child: _buildQuestionContent(controller),
+              ),
+              // Bottom navigation
+              _buildBottomNav(controller),
+            ],
+          );
+        }),
       ),
+    );
+  }
+
+  Widget _buildEmptyQuestions(TestScreenController controller) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Spacer(),
+        Container(
+          padding: EdgeInsets.all(24.r),
+          decoration: BoxDecoration(
+            color: AppColor.warning.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.quiz_outlined,
+            size: 56.sp,
+            color: AppColor.warning,
+          ),
+        ),
+        SizedBox(height: 20.h),
+        Text(
+          'No Questions Added',
+          style: GoogleFonts.poppins(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColor.textPrimary,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 40.w),
+          child: Text(
+            'The questions for this set have not been added yet. Please check back later.',
+            style: GoogleFonts.poppins(
+              fontSize: 13.sp,
+              color: AppColor.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        const Spacer(),
+        Padding(
+          padding: EdgeInsets.only(bottom: 32.h),
+          child: GestureDetector(
+            onTap: () => Get.back(),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 14.h),
+              decoration: BoxDecoration(
+                gradient: AppColor.primaryGradient,
+                borderRadius: BorderRadius.circular(14.r),
+                boxShadow: [AppColor.buttonShadow],
+              ),
+              child: Text(
+                'Go Back',
+                style: GoogleFonts.poppins(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

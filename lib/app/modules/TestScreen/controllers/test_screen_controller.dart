@@ -61,12 +61,12 @@ class TestScreenController extends GetxController {
     final storedId = getBox.read(USER_ID);
     userId = storedId != null ? int.tryParse(storedId.toString()) : null;
 
-    // Use custom questions if provided, otherwise generate sample
+    // Use custom questions if provided
     final customQuestions = args['questions'] as List<Question>?;
     if (customQuestions != null && customQuestions.isNotEmpty) {
       questions.value = customQuestions;
     } else {
-      questions.value = Question.generateSample();
+      return; // No questions to show
     }
 
     // Override timer if provided
@@ -441,8 +441,6 @@ class TestScreenController extends GetxController {
     unansweredCount.value = 0;
     timeTaken.value = 0;
 
-    // Regenerate questions
-    questions.value = Question.generateSample();
     _startTimer();
   }
 
