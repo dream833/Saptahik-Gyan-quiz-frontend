@@ -414,13 +414,6 @@ class _AllMockTestBody extends StatelessWidget {
               ),
             ),
             SizedBox(height: 2.h),
-            Text(
-              'Multiple chapters',
-              style: GoogleFonts.poppins(
-                fontSize: 10.sp,
-                color: AppColor.textSecondary,
-              ),
-            ),
           ],
         ),
       ),
@@ -497,13 +490,6 @@ class _AllMockTestBody extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 2.h),
-                          Text(
-                            'Test sets available',
-                            style: GoogleFonts.poppins(
-                              fontSize: 11.sp,
-                              color: AppColor.textSecondary,
-                            ),
-                          ),
                         ],
                       ),
                     ),

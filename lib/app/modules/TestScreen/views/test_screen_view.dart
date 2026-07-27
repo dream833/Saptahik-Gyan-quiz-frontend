@@ -70,21 +70,23 @@ class TestScreenView extends StatelessWidget {
           SizedBox(width: 12.w),
 
           // Question number - Top Left
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-            decoration: BoxDecoration(
-              gradient: AppColor.primaryGradient,
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: Text(
-              '${controller.currentQuestionIndex.value + 1} / ${controller.totalQuestions}',
-              style: GoogleFonts.poppins(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+          Obx(() {
+            return Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                gradient: AppColor.primaryGradient,
+                borderRadius: BorderRadius.circular(20.r),
               ),
-            ),
-          ),
+              child: Text(
+                '${controller.currentQuestionIndex.value + 1} / ${controller.totalQuestions}',
+                style: GoogleFonts.poppins(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            );
+          }),
 
           const Spacer(),
 
