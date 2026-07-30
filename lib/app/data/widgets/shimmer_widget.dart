@@ -166,8 +166,10 @@ class ShimmerWidget {
       highlightColor: AppColor.shimmerHighlight,
       child: Padding(
         padding: EdgeInsets.all(20.r),
-        child: Column(
-          children: List.generate(itemCount, (index) {
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            children: List.generate(itemCount, (index) {
             return Padding(
               padding: EdgeInsets.only(bottom: 16.h),
               child: Container(
@@ -179,7 +181,8 @@ class ShimmerWidget {
                 ),
               ),
             );
-          }),
+            }),
+          ),
         ),
       ),
     );

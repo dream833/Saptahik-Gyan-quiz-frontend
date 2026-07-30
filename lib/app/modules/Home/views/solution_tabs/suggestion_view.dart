@@ -361,8 +361,6 @@ class _SuggestionBody extends StatelessWidget {
           Text(cl.name, textAlign: TextAlign.center,
               style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
           SizedBox(height: 2.h),
-          Text('Subjects',
-              style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
         ]),
       ),
     );

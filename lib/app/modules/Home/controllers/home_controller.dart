@@ -13,6 +13,7 @@ class HomeController extends GetxController {
   var userName = ''.obs;
   var userEmail = ''.obs;
   var userPhone = ''.obs;
+  var userProfileImage = Rx<String?>(null);
   var totalTestsTaken = 0.obs;
   var averageScore = 0.obs;
   var totalCorrect = 0.obs;
@@ -29,10 +30,33 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     fetchDashboard();
+    fetchProfileImage();
   }
 
   void changeTab(int index) {
     currentIndex.value = index;
+  }
+
+  Future<void> fetchProfileImage() async {
+    try {
+      final userId = getBox.read(USER_ID);
+      if (userId == null) return;
+
+      final response = await dioPost(
+        endUrl: "/fetch-profile.php",
+        data: {"user_id": int.tryParse(userId.toString()) ?? 0},
+      );
+
+      if (response.data['status'] == true && response.data['data'] != null) {
+        final data = response.data['data'];
+        if (data['profile_image'] != null &&
+            data['profile_image'].toString().isNotEmpty) {
+          userProfileImage.value = data['profile_image'].toString();
+        }
+      }
+    } catch (e) {
+      log("Fetch profile image error: $e");
+    }
   }
 
   Future<void> fetchDashboard() async {
@@ -57,6 +81,11 @@ class HomeController extends GetxController {
           userName.value = data['user']['name'] ?? '';
           userEmail.value = data['user']['email'] ?? '';
           userPhone.value = data['user']['phone'] ?? '';
+          if (data['user']['profile_image'] != null &&
+              data['user']['profile_image'].toString().isNotEmpty) {
+            userProfileImage.value =
+                data['user']['profile_image'].toString();
+          }
         }
 
         // Stats

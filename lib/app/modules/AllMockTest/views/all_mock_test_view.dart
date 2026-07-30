@@ -23,20 +23,20 @@ class AllMockTestView extends StatelessWidget {
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Get.back(),
-          child: Container(
-            margin: EdgeInsets.all(8.r),
-            decoration: BoxDecoration(
-              color: AppColor.cardColor,
-              borderRadius: BorderRadius.circular(12.r),
-              boxShadow: [AppColor.softShadow],
-            ),
-            child: Icon(
-              Icons.arrow_back_rounded,
-              color: AppColor.buttonTwoColor,
-              size: 22.sp,
+            child: Container(
+              margin: EdgeInsets.all(8.r),
+              decoration: BoxDecoration(
+                color: AppColor.cardColor,
+                borderRadius: BorderRadius.circular(12.r),
+                boxShadow: [AppColor.softShadow],
+              ),
+              child: Icon(
+                Icons.arrow_back_rounded,
+                color: AppColor.buttonTwoColor,
+                size: 22.sp,
+              ),
             ),
           ),
-        ),
         title: Row(
           children: [
             Container(

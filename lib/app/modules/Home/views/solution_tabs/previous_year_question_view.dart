@@ -12,6 +12,7 @@ import '../../../../data/function/dio_post.dart';
 import '../../../../data/models/mock_data.dart';
 import '../../../../data/widgets/decorative_background.dart';
 import '../../../../data/widgets/shimmer_widget.dart';
+import 'pdf_viewer_screen.dart';
 
 class PreviousYearQuestionView extends StatelessWidget {
   const PreviousYearQuestionView({super.key});
@@ -165,7 +166,7 @@ class _PyqController extends GetxController {
       if (response.data['data'] != null) {
         final dataList = response.data['data'] as List;
         if (dataList.isNotEmpty && dataList.first['pdf_file'] != null) {
-          pdfUrl.value = '${BASE_URL.replaceAll('/Api/app', '/')}${dataList.first['pdf_file']}';
+          pdfUrl.value = '${BASE_URL.replaceAll('/Api/app', '/uploads/pyq/')}${dataList.first['pdf_file']}';
         }
 
         // Map to QAItem list for display
@@ -772,7 +773,7 @@ class _PyqBody extends StatelessWidget {
           ],
         ),
         SizedBox(height: 16.h),
-        ...items.map((item) => _pyqCard(item)),
+        ...items.map((item) => _pyqCard(item, c)),
         if (items.isEmpty)
           Padding(
             padding: EdgeInsets.only(top: 20.h),
@@ -800,7 +801,8 @@ class _PyqBody extends StatelessWidget {
     );
   }
 
-  Widget _pyqCard(QAItem item) {
+  Widget _pyqCard(QAItem item, _PyqController c) {
+    final hasPdf = c.pdfUrl.value != null && c.pdfUrl.value!.isNotEmpty;
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
@@ -812,6 +814,7 @@ class _PyqBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Question section
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(14.r),
@@ -862,46 +865,87 @@ class _PyqBody extends StatelessWidget {
             ),
           ),
           Container(height: 1, color: AppColor.cardBorder),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(14.r),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(top: 2.h, right: 10.w),
-                  child: Icon(
-                    Icons.check_circle_rounded,
-                    color: AppColor.buttonOneColor,
-                    size: 18.sp,
-                  ),
+          // View PDF button section
+          GestureDetector(
+            onTap: hasPdf
+                ? () {
+                    Get.to(
+                      () => PdfViewerScreen(
+                        pdfUrl: c.pdfUrl.value!,
+                        title: item.question,
+                      ),
+                    );
+                  }
+                : null,
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(14.r),
+              decoration: BoxDecoration(
+                color: hasPdf
+                    ? AppColor.buttonOneColor.withValues(alpha: 0.06)
+                    : Colors.transparent,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(16),
                 ),
-                Expanded(
-                  child: Text(
-                    item.answer,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12.sp,
-                      color: AppColor.textSecondary,
-                      height: 1.6,
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => _copyText(item.answer, 'Answer'),
-                  child: Container(
-                    padding: EdgeInsets.all(6.r),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44.r,
+                    height: 44.r,
                     decoration: BoxDecoration(
-                      color: AppColor.buttonOneColor.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8.r),
+                      color: hasPdf
+                          ? AppColor.buttonOneColor.withValues(alpha: 0.12)
+                          : AppColor.backgroundColorLight,
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Icon(
-                      Icons.copy_rounded,
-                      color: AppColor.buttonOneColor,
-                      size: 16.sp,
+                      Icons.picture_as_pdf_rounded,
+                      color: hasPdf ? AppColor.buttonOneColor : AppColor.textLight,
+                      size: 22.sp,
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(width: 14.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          hasPdf ? 'Question Paper PDF' : 'No PDF Available',
+                          style: GoogleFonts.poppins(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            color: hasPdf ? AppColor.textPrimary : AppColor.textLight,
+                          ),
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          hasPdf
+                              ? 'Tap to open & view the question paper'
+                              : 'PDF file not found for this set',
+                          style: GoogleFonts.poppins(
+                            fontSize: 10.sp,
+                            color: hasPdf ? AppColor.textSecondary : AppColor.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (hasPdf)
+                    Container(
+                      padding: EdgeInsets.all(8.r),
+                      decoration: BoxDecoration(
+                        color: AppColor.buttonOneColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Icon(
+                        Icons.open_in_new_rounded,
+                        color: AppColor.buttonOneColor,
+                        size: 18.sp,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ],

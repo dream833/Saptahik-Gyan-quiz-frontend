@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../data/config/app_cons.dart';
 import '../../../data/config/appcolor.dart';
 import '../../../data/models/mock_data.dart';
 import '../../../data/widgets/decorative_background.dart';
@@ -19,11 +20,18 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     Get.put(HomeController());
     final controller = Get.find<HomeController>();
-    return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
-      drawer: _buildDrawer(context, controller),
-      body: _buildBody(context, controller),
-      bottomNavigationBar: _buildBottomNav(controller),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _showExitDialog(context);
+      },
+      child: Scaffold(
+        backgroundColor: AppColor.backgroundColor,
+        drawer: _buildDrawer(context, controller),
+        body: _buildBody(context, controller),
+        bottomNavigationBar: _buildBottomNav(controller),
+      ),
     );
   }
 
@@ -37,8 +45,8 @@ class HomeView extends StatelessWidget {
         index: controller.currentIndex.value,
         children: [
           _buildHomeTab(context),
-          _buildSolutionTab(context),
           _buildLiveTestTab(context),
+          _buildSolutionTab(context),
           _buildProfileTab(context),
         ],
       ),
@@ -64,7 +72,7 @@ class HomeView extends StatelessWidget {
         child: BottomNavigationBar(
           currentIndex: controller.currentIndex.value,
           onTap: (index) {
-            if (index == 2) {
+            if (index == 1) {
               Get.toNamed('/daily-mock-test');
             } else {
               controller.changeTab(index);
@@ -87,12 +95,12 @@ class HomeView extends StatelessWidget {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.lightbulb_rounded),
-              label: 'Solution',
-            ),
-            BottomNavigationBarItem(
               icon: Icon(Icons.live_tv_rounded),
               label: 'Live Test',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.lightbulb_rounded),
+              label: 'Solution',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_rounded),
@@ -120,7 +128,10 @@ class HomeView extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   if (c.isLoading.value) {
-                    return ShimmerWidget.pageLoader(itemCount: 5, itemHeight: 160);
+                    return ShimmerWidget.pageLoader(
+                      itemCount: 5,
+                      itemHeight: 160,
+                    );
                   }
                   return SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
@@ -571,29 +582,70 @@ class HomeView extends StatelessWidget {
             SizedBox(height: 20.h),
 
             // Avatar & Name
-            Container(
-              width: 80.r,
-              height: 80.r,
-              decoration: BoxDecoration(
-                gradient: AppColor.primaryGradient,
-                shape: BoxShape.circle,
-                boxShadow: [AppColor.buttonShadow],
-              ),
-              child: Obx(() {
-                final c = Get.find<HomeController>();
+            Obx(() {
+              final c = Get.find<HomeController>();
+              final imageUrl = c.userProfileImage.value;
+
+              // Show profile image if available
+              if (imageUrl != null && imageUrl.isNotEmpty) {
+                final resolvedUrl = imageUrl.startsWith('http')
+                    ? imageUrl
+                    : '${BASE_URL.replaceAll('/Api/app', '/')}$imageUrl';
                 final initial = c.userName.value.isNotEmpty
                     ? c.userName.value[0].toUpperCase()
                     : 'L';
-                return Text(
-                  initial,
-                  style: GoogleFonts.poppins(
-                    fontSize: 32.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                return ClipOval(
+                  child: Image.network(
+                    resolvedUrl,
+                    width: 80.r,
+                    height: 80.r,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      width: 80.r,
+                      height: 80.r,
+                      decoration: BoxDecoration(
+                        gradient: AppColor.primaryGradient,
+                        shape: BoxShape.circle,
+                        boxShadow: [AppColor.buttonShadow],
+                      ),
+                      child: Center(
+                        child: Text(
+                          initial,
+                          style: GoogleFonts.poppins(
+                            fontSize: 32.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 );
-              }),
-            ),
+              }
+
+              // Fallback: show initial letter
+              return Container(
+                width: 80.r,
+                height: 80.r,
+                decoration: BoxDecoration(
+                  gradient: AppColor.primaryGradient,
+                  shape: BoxShape.circle,
+                  boxShadow: [AppColor.buttonShadow],
+                ),
+                child: Center(
+                  child: Text(
+                    c.userName.value.isNotEmpty
+                        ? c.userName.value[0].toUpperCase()
+                        : 'L',
+                    style: GoogleFonts.poppins(
+                      fontSize: 32.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              );
+            }),
             SizedBox(height: 12.h),
             Obx(() {
               final c = Get.find<HomeController>();
@@ -610,7 +662,9 @@ class HomeView extends StatelessWidget {
             Obx(() {
               final c = Get.find<HomeController>();
               return Text(
-                c.userEmail.value.isNotEmpty ? c.userEmail.value : 'learner@example.com',
+                c.userEmail.value.isNotEmpty
+                    ? c.userEmail.value
+                    : 'learner@example.com',
                 style: GoogleFonts.poppins(
                   fontSize: 13.sp,
                   color: AppColor.textSecondary,
@@ -846,6 +900,57 @@ class HomeView extends StatelessWidget {
       contentPadding: EdgeInsets.symmetric(horizontal: 20.w),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       hoverColor: AppColor.buttonOneColor.withValues(alpha: 0.05),
+    );
+  }
+
+  void _showExitDialog(BuildContext context) {
+    Get.defaultDialog(
+      title: 'Exit App',
+      titleStyle: GoogleFonts.poppins(
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w600,
+        color: AppColor.textPrimary,
+      ),
+      middleText: 'Are you sure you want to exit the app?',
+      middleTextStyle: GoogleFonts.poppins(
+        fontSize: 13.sp,
+        color: AppColor.textSecondary,
+      ),
+      confirmTextColor: Colors.white,
+      cancelTextColor: AppColor.textPrimary,
+      buttonColor: AppColor.buttonOneColor,
+      cancel: TextButton(
+        onPressed: () => Get.back(),
+        child: Text(
+          'Cancel',
+          style: GoogleFonts.poppins(
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w500,
+            color: AppColor.textSecondary,
+          ),
+        ),
+      ),
+      confirm: ElevatedButton(
+        onPressed: () {
+          Get.back(); // close dialog
+          Get.back(); // exit app
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColor.buttonOneColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
+        ),
+        child: Text(
+          'Exit',
+          style: GoogleFonts.poppins(
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 

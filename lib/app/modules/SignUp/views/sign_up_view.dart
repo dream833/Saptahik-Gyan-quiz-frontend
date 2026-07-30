@@ -17,8 +17,8 @@ class SignUpView extends StatelessWidget {
     final controller = Get.put(SignUpController());
 
     return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
-      body: DecorativeBackground(
+        backgroundColor: AppColor.backgroundColor,
+        body: DecorativeBackground(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(

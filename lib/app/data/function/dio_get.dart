@@ -34,7 +34,7 @@ Future<DIO.Response<dynamic>> dioGet(String endUrl) async {
       );
     }
     return response;
-  } on DIO.DioException catch (e) {
+  } on DIO.DioException {
     rethrow;
   } catch (e) {
     rethrow;

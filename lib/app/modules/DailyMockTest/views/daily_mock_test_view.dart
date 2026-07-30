@@ -19,45 +19,45 @@ class DailyMockTestView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColor.backgroundColor,
       body: DecorativeBackground(
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAppBar(context, controller),
-              Expanded(
-                child: Obx(() {
-                  // Show shimmer when loading data
-                  if (controller.isLoading.value &&
-                      (controller.availableClasses.isEmpty ||
-                          (controller.currentStep.value == 1 &&
-                              controller.subjects.isEmpty) ||
-                          (controller.currentStep.value == 2 &&
-                              controller.testList.isEmpty))) {
-                    if (controller.currentStep.value == 0) {
-                      return _buildClassShimmer(controller);
-                    } else if (controller.currentStep.value == 1) {
-                      return _buildSubjectShimmer();
-                    } else {
-                      return _buildTestShimmer();
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildAppBar(context, controller),
+                Expanded(
+                  child: Obx(() {
+                    // Show shimmer when loading data
+                    if (controller.isLoading.value &&
+                        (controller.availableClasses.isEmpty ||
+                            (controller.currentStep.value == 1 &&
+                                controller.subjects.isEmpty) ||
+                            (controller.currentStep.value == 2 &&
+                                controller.testList.isEmpty))) {
+                      if (controller.currentStep.value == 0) {
+                        return _buildClassShimmer(controller);
+                      } else if (controller.currentStep.value == 1) {
+                        return _buildSubjectShimmer();
+                      } else {
+                        return _buildTestShimmer();
+                      }
                     }
-                  }
-                  switch (controller.currentStep.value) {
-                    case 0:
-                      return _buildClassSelection(controller);
-                    case 1:
-                      return _buildSubjectSelection(controller);
-                    case 2:
-                      return _buildTestList(controller);
-                    default:
-                      return _buildClassSelection(controller);
-                  }
-                }),
-              ),
-            ],
+                    switch (controller.currentStep.value) {
+                      case 0:
+                        return _buildClassSelection(controller);
+                      case 1:
+                        return _buildSubjectSelection(controller);
+                      case 2:
+                        return _buildTestList(controller);
+                      default:
+                        return _buildClassSelection(controller);
+                    }
+                  }),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   // ───────────────────────────────────────────
