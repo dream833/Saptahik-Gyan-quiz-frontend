@@ -904,50 +904,100 @@ class HomeView extends StatelessWidget {
   }
 
   void _showExitDialog(BuildContext context) {
-    Get.defaultDialog(
-      title: 'Exit App',
-      titleStyle: GoogleFonts.poppins(
-        fontSize: 16.sp,
-        fontWeight: FontWeight.w600,
-        color: AppColor.textPrimary,
-      ),
-      middleText: 'Are you sure you want to exit the app?',
-      middleTextStyle: GoogleFonts.poppins(
-        fontSize: 13.sp,
-        color: AppColor.textSecondary,
-      ),
-      confirmTextColor: Colors.white,
-      cancelTextColor: AppColor.textPrimary,
-      buttonColor: AppColor.buttonOneColor,
-      cancel: TextButton(
-        onPressed: () => Get.back(),
-        child: Text(
-          'Cancel',
-          style: GoogleFonts.poppins(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w500,
-            color: AppColor.textSecondary,
-          ),
+    Get.dialog(
+      Dialog(
+        backgroundColor: AppColor.cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24.r),
         ),
-      ),
-      confirm: ElevatedButton(
-        onPressed: () {
-          Get.back(); // close dialog
-          Get.back(); // exit app
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColor.buttonOneColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
-        ),
-        child: Text(
-          'Exit',
-          style: GoogleFonts.poppins(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+        child: Padding(
+          padding: EdgeInsets.all(24.r),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: EdgeInsets.all(16.r),
+                decoration: BoxDecoration(
+                  color: AppColor.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.exit_to_app_rounded,
+                  color: AppColor.error,
+                  size: 36.sp,
+                ),
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                'Exit App?',
+                style: GoogleFonts.poppins(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColor.textPrimary,
+                ),
+              ),
+              SizedBox(height: 12.h),
+              Text(
+                'Do you want to exit?',
+                style: GoogleFonts.poppins(
+                  fontSize: 13.sp,
+                  color: AppColor.textSecondary,
+                ),
+              ),
+              SizedBox(height: 24.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        decoration: BoxDecoration(
+                          color: AppColor.shimmerBase,
+                          borderRadius: BorderRadius.circular(14.r),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppColor.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.back(); // close dialog
+                        Get.back(); // exit app
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        decoration: BoxDecoration(
+                          color: AppColor.error,
+                          borderRadius: BorderRadius.circular(14.r),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Exit',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

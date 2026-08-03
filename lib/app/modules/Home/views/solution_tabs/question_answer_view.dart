@@ -516,18 +516,51 @@ class _QuestionAnswerBody extends StatelessWidget {
                 boxShadow: [AppColor.softShadow],
                 border: Border.all(color: AppColor.cardBorder),
               ),
-              child: Row(children: [
-                Container(padding: EdgeInsets.all(8.r),
-                  decoration: BoxDecoration(color: AppColor.buttonOneColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10.r)),
-                  child: Icon(Icons.book_rounded, color: AppColor.buttonOneColor, size: 20.sp)),
-                SizedBox(width: 12.w),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(ch.name, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
-                  SizedBox(height: 2.h),
-                  Text(' ', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
-                ])),
-                Icon(Icons.chevron_right_rounded, color: AppColor.textLight, size: 20.sp),
-              ]),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Centered chapter name
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 44.w),
+                      child: Text(
+                        ch.name,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColor.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Left book icon
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: EdgeInsets.all(8.r),
+                      decoration: BoxDecoration(
+                        color: AppColor.buttonOneColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: Icon(
+                        Icons.book_rounded,
+                        color: AppColor.buttonOneColor,
+                        size: 20.sp,
+                      ),
+                    ),
+                  ),
+                  // Right chevron
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColor.textLight,
+                      size: 20.sp,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }),

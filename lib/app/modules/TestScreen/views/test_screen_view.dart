@@ -14,9 +14,16 @@ class TestScreenView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<TestScreenController>();
 
-    return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
-      body: _buildQuizScreen(controller),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _showExitDialog(controller);
+      },
+      child: Scaffold(
+        backgroundColor: AppColor.backgroundColor,
+        body: _buildQuizScreen(controller),
+      ),
     );
   }
 
