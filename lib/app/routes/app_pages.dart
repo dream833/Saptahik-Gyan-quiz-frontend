@@ -21,6 +21,8 @@ import '../modules/SignIn/bindings/sign_in_binding.dart';
 import '../modules/SignIn/views/sign_in_view.dart';
 import '../modules/SignUp/bindings/sign_up_binding.dart';
 import '../modules/SignUp/views/sign_up_view.dart';
+import '../modules/Splash/bindings/splash_binding.dart';
+import '../modules/Splash/views/splash_view.dart';
 import '../modules/TestScreen/bindings/test_screen_binding.dart';
 import '../modules/TestScreen/views/test_screen_view.dart';
 
@@ -29,9 +31,14 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.SIGN_IN;
+  static const INITIAL = Routes.SPLASH;
 
   static final routes = [
+    GetPage(
+      name: _Paths.SPLASH,
+      page: () => const SplashView(),
+      binding: SplashBinding(),
+    ),
     GetPage(
       name: _Paths.SIGN_IN,
       page: () => const SignInView(),

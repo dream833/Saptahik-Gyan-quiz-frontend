@@ -65,14 +65,21 @@ class FcmService {
     // App opened from notification (app in background)
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       log("FCM Opened: ${message.data}");
-      _handleNotificationTap(message);
+      _handleNotificationTap(
+        message,
+        delay: const Duration(milliseconds: 600),
+      );
     });
 
     // App launched from notification (app killed)
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
       log("FCM Initial: ${initialMessage.data}");
-      _handleNotificationTap(initialMessage);
+      // Wait past the splash screen so its navigation doesn't override ours
+      _handleNotificationTap(
+        initialMessage,
+        delay: const Duration(seconds: 4),
+      );
     }
 
     // If a user is already logged in, register the token on app open
@@ -128,9 +135,12 @@ class FcmService {
     }
   }
 
-  static void _handleNotificationTap(RemoteMessage message) {
+  static void _handleNotificationTap(
+    RemoteMessage message, {
+    Duration delay = const Duration(milliseconds: 600),
+  }) {
     // Slight delay so navigation is ready after cold start
-    Future.delayed(const Duration(milliseconds: 600), () {
+    Future.delayed(delay, () {
       Get.toNamed('/notifications');
     });
   }

@@ -4,6 +4,7 @@ part of 'app_pages.dart';
 
 abstract class Routes {
   Routes._();
+  static const SPLASH = _Paths.SPLASH;
   static const SIGN_IN = _Paths.SIGN_IN;
   static const HOME = _Paths.HOME;
   static const DAILY_MOCK_TEST = _Paths.DAILY_MOCK_TEST;
@@ -23,6 +24,7 @@ abstract class Routes {
 
 abstract class _Paths {
   _Paths._();
+  static const SPLASH = '/splash';
   static const SIGN_IN = '/sign-in';
   static const HOME = '/home';
   static const DAILY_MOCK_TEST = '/daily-mock-test';

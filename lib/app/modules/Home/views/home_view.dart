@@ -1051,7 +1051,7 @@ class HomeView extends StatelessWidget {
           const Spacer(),
           // Notification button
           GestureDetector(
-            onTap: () => _showComingSoon(context, "Notifications"),
+            onTap: () => Get.toNamed('/notifications'),
             child: Container(
               padding: EdgeInsets.all(10.r),
               decoration: BoxDecoration(
@@ -1384,22 +1384,6 @@ class HomeView extends StatelessWidget {
   //  HELPERS
   // ───────────────────────────────────────────
 
-  void _showComingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "$feature - Coming Soon!",
-          style: GoogleFonts.poppins(fontSize: 13.sp),
-        ),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        backgroundColor: AppColor.buttonTwoColor,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
 }
 
 // ───────────────────────────────────────────────
