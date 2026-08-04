@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../data/config/app_cons.dart';
 import '../../../data/function/dio_post.dart';
+import '../../../data/function/fcm_service.dart';
 
 class SignInController extends GetxController {
   var mobileController = TextEditingController();
@@ -32,6 +33,11 @@ class SignInController extends GetxController {
 
         log("IS_USER_LOGGED_IN: ${getBox.read(IS_USER_LOGGED_IN)}");
         log("USER_ID: ${getBox.read(USER_ID)}");
+
+        // 🔥 Register device token for push notifications
+        FcmService.registerDevice(
+          userId: responses.data['user']['id'].toString(),
+        );
 
         Get.snackbar(
           "Success",

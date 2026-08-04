@@ -8,6 +8,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../../data/config/app_cons.dart';
 import '../../../data/config/appcolor.dart';
+import '../../../data/function/fcm_service.dart';
 import '../../../data/models/mock_data.dart';
 import '../../../data/widgets/decorative_background.dart';
 import '../../../data/widgets/shimmer_widget.dart';
@@ -89,20 +90,20 @@ class HomeView extends StatelessWidget {
             fontWeight: FontWeight.w400,
           ),
           elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
+          items: [
+            const BottomNavigationBarItem(
               icon: Icon(Icons.home_rounded),
               label: 'Home',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.live_tv_rounded),
+            const BottomNavigationBarItem(
+              icon: ImageIcon(AssetImage('assets/images/test.png')),
               label: 'Live Test',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(Icons.lightbulb_rounded),
               label: 'Solution',
             ),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(
               icon: Icon(Icons.person_rounded),
               label: 'Profile',
             ),
@@ -710,7 +711,10 @@ class HomeView extends StatelessWidget {
                         middleText: 'Are you sure you want to logout?',
                         confirmTextColor: Colors.white,
                         buttonColor: AppColor.buttonOneColor,
-                        onConfirm: () => Get.offAllNamed('/sign-in'),
+                        onConfirm: () {
+                          FcmService.unregisterDevice();
+                          Get.offAllNamed('/sign-in');
+                        },
                         onCancel: () {},
                       );
                     },
@@ -863,7 +867,10 @@ class HomeView extends StatelessWidget {
                   middleText: "Are you sure you want to logout?",
                   confirmTextColor: Colors.white,
                   buttonColor: AppColor.buttonOneColor,
-                  onConfirm: () => Get.offAllNamed('/sign-in'),
+                  onConfirm: () {
+                    FcmService.unregisterDevice();
+                    Get.offAllNamed('/sign-in');
+                  },
                   onCancel: () {},
                 );
               },
