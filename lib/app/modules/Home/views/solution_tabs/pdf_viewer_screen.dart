@@ -225,7 +225,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
             _errorMessage = error.toString();
           });
         },
-        onPageError: (_, __) {},
+        onPageError: (_, _) {},
         onViewCreated: (_) {},
       );
     }

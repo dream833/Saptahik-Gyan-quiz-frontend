@@ -78,47 +78,53 @@ class EditProfileController extends GetxController {
               ),
             ),
             SizedBox(height: 20.h),
-            ListTile(
-              leading: Container(
-                padding: EdgeInsets.all(8.r),
-                decoration: BoxDecoration(
-                  color: AppColor.buttonOneColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12.r),
+            Material(
+              type: MaterialType.transparency,
+              child: ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(8.r),
+                  decoration: BoxDecoration(
+                    color: AppColor.buttonOneColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Icon(
+                    Icons.camera_alt_rounded,
+                    color: AppColor.buttonOneColor,
+                  ),
                 ),
-                child: Icon(
-                  Icons.camera_alt_rounded,
-                  color: AppColor.buttonOneColor,
+                title: Text(
+                  'Take Photo',
+                  style: GoogleFonts.poppins(fontSize: 14.sp),
                 ),
+                onTap: () {
+                  Get.back();
+                  pickImage(ImageSource.camera);
+                },
               ),
-              title: Text(
-                'Take Photo',
-                style: GoogleFonts.poppins(fontSize: 14.sp),
-              ),
-              onTap: () {
-                Get.back();
-                pickImage(ImageSource.camera);
-              },
             ),
-            ListTile(
-              leading: Container(
-                padding: EdgeInsets.all(8.r),
-                decoration: BoxDecoration(
-                  color: AppColor.buttonTwoColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12.r),
+            Material(
+              type: MaterialType.transparency,
+              child: ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(8.r),
+                  decoration: BoxDecoration(
+                    color: AppColor.buttonTwoColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Icon(
+                    Icons.photo_library_rounded,
+                    color: AppColor.buttonTwoColor,
+                  ),
                 ),
-                child: Icon(
-                  Icons.photo_library_rounded,
-                  color: AppColor.buttonTwoColor,
+                title: Text(
+                  'Choose from Gallery',
+                  style: GoogleFonts.poppins(fontSize: 14.sp),
                 ),
+                onTap: () {
+                  Get.back();
+                  pickImage(ImageSource.gallery);
+                },
               ),
-              title: Text(
-                'Choose from Gallery',
-                style: GoogleFonts.poppins(fontSize: 14.sp),
-              ),
-              onTap: () {
-                Get.back();
-                pickImage(ImageSource.gallery);
-              },
             ),
             SizedBox(height: 8.h),
           ],
@@ -387,10 +393,10 @@ class EditProfileView extends StatelessWidget {
                                 final resolvedUrl = _resolveImageUrl(
                                   controller.profileImageUrl.value!,
                                 );
-                                final initial = controller
-                                        .nameController.text.isNotEmpty
+                                final initial =
+                                    controller.nameController.text.isNotEmpty
                                     ? controller.nameController.text[0]
-                                        .toUpperCase()
+                                          .toUpperCase()
                                     : 'U';
                                 return ClipOval(
                                   child: Image.network(
@@ -398,7 +404,7 @@ class EditProfileView extends StatelessWidget {
                                     width: 90.r,
                                     height: 90.r,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
+                                    errorBuilder: (_, _, _) => Container(
                                       width: 90.r,
                                       height: 90.r,
                                       decoration: BoxDecoration(

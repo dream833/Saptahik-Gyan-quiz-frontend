@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -745,38 +746,41 @@ class HomeView extends StatelessWidget {
         boxShadow: [AppColor.softShadow],
         border: Border.all(color: AppColor.cardBorder),
       ),
-      child: ListTile(
-        leading: Container(
-          padding: EdgeInsets.all(8.r),
-          decoration: BoxDecoration(
-            color: (iconColor ?? AppColor.buttonTwoColor).withValues(
-              alpha: 0.1,
+      child: Material(
+        type: MaterialType.transparency,
+        child: ListTile(
+          leading: Container(
+            padding: EdgeInsets.all(8.r),
+            decoration: BoxDecoration(
+              color: (iconColor ?? AppColor.buttonTwoColor).withValues(
+                alpha: 0.1,
+              ),
+              borderRadius: BorderRadius.circular(10.r),
             ),
-            borderRadius: BorderRadius.circular(10.r),
+            child: Icon(
+              icon,
+              color: iconColor ?? AppColor.buttonTwoColor,
+              size: 20.sp,
+            ),
           ),
-          child: Icon(
-            icon,
-            color: iconColor ?? AppColor.buttonTwoColor,
+          title: Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: textColor ?? AppColor.textPrimary,
+            ),
+          ),
+          trailing: Icon(
+            Icons.chevron_right_rounded,
+            color: AppColor.textLight,
             size: 20.sp,
           ),
-        ),
-        title: Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-            color: textColor ?? AppColor.textPrimary,
+          onTap: onTap,
+          contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 2.h),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
           ),
-        ),
-        trailing: Icon(
-          Icons.chevron_right_rounded,
-          color: AppColor.textLight,
-          size: 20.sp,
-        ),
-        onTap: onTap,
-        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 2.h),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
         ),
       ),
     );
@@ -981,7 +985,7 @@ class HomeView extends StatelessWidget {
                     child: GestureDetector(
                       onTap: () {
                         Get.back(); // close dialog
-                        Get.back(); // exit app
+                        SystemNavigator.pop(); // exit app
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 12.h),

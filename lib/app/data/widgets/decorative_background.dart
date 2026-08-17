@@ -90,7 +90,7 @@ class DecorativeBackground extends StatelessWidget {
   }
 }
 
-/// App logo widget that uses the app_logos.png asset
+/// App logo widget that uses the logo.png asset
 class AppLogo extends StatelessWidget {
   final double size;
 
@@ -114,7 +114,7 @@ class AppLogo extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20.r),
         child: Image.asset(
-          'assets/images/app_logos.png',
+          'assets/images/logo.png',
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
