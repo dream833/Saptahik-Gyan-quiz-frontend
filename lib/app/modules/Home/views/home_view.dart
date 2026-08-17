@@ -712,10 +712,7 @@ class HomeView extends StatelessWidget {
                         middleText: 'Are you sure you want to logout?',
                         confirmTextColor: Colors.white,
                         buttonColor: AppColor.buttonOneColor,
-                        onConfirm: () {
-                          FcmService.unregisterDevice();
-                          Get.offAllNamed('/sign-in');
-                        },
+                        onConfirm: _logout,
                         onCancel: () {},
                       );
                     },
@@ -871,10 +868,7 @@ class HomeView extends StatelessWidget {
                   middleText: "Are you sure you want to logout?",
                   confirmTextColor: Colors.white,
                   buttonColor: AppColor.buttonOneColor,
-                  onConfirm: () {
-                    FcmService.unregisterDevice();
-                    Get.offAllNamed('/sign-in');
-                  },
+                  onConfirm: _logout,
                   onCancel: () {},
                 );
               },
@@ -912,6 +906,16 @@ class HomeView extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       hoverColor: AppColor.buttonOneColor.withValues(alpha: 0.05),
     );
+  }
+
+  /// Clear the stored session and return to the sign-in screen.
+  Future<void> _logout() async {
+    await FcmService.unregisterDevice();
+    await getBox.remove(IS_USER_LOGGED_IN);
+    await getBox.remove(USER_ID);
+    await getBox.remove(USER_TOKEN);
+    await getBox.remove(USER_LOGIN);
+    Get.offAllNamed('/sign-in');
   }
 
   void _showExitDialog(BuildContext context) {

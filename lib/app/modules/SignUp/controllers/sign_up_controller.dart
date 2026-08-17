@@ -25,12 +25,12 @@ class SignUpController extends GetxController {
 
     /// VALIDATION
     if (name.isEmpty || email.isEmpty || mobile.isEmpty || password.isEmpty) {
-      Get.snackbar("Error", "সব ক্ষেত্র পূরণ করুন");
+      Get.snackbar("Error", "Please fill all fields");
       return;
     }
 
     if (mobile.length != 10) {
-      Get.snackbar("Error", "মোবাইল নম্বর অবশ্যই ১০ সংখ্যার হতে হবে");
+      Get.snackbar("Error", "Mobile number must be 10 digits");
       return;
     }
 
@@ -74,7 +74,7 @@ class SignUpController extends GetxController {
       Get.showSnackbar(
         const GetSnackBar(
           title: "Error",
-          message: "কিছু ভুল হয়েছে",
+          message: "Something went wrong",
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ),

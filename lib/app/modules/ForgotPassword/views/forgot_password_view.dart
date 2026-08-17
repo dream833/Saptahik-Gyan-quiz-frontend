@@ -54,8 +54,6 @@ class ForgotPasswordView extends StatelessWidget {
                     // 🔹 Step Content
                     if (controller.currentStep.value == 0)
                       _buildPhoneStep(controller)
-                    else if (controller.currentStep.value == 1)
-                      _buildOtpStep(controller)
                     else
                       _buildResetStep(controller),
 
@@ -94,7 +92,7 @@ class ForgotPasswordView extends StatelessWidget {
             ],
           ),
           child: Icon(
-            c.currentStep.value == 2
+            c.currentStep.value == 1
                 ? Icons.lock_reset_rounded
                 : Icons.lock_outline_rounded,
             color: Colors.white,
@@ -104,10 +102,8 @@ class ForgotPasswordView extends StatelessWidget {
         SizedBox(height: 12.h),
         Text(
           c.currentStep.value == 0
-              ? "পাসওয়ার্ড ভুলে গেছেন?"
-              : c.currentStep.value == 1
-                  ? "OTP যাচাই করুন"
-                  : "নতুন পাসওয়ার্ড সেট করুন",
+              ? "Forgot Password?"
+              : "Set New Password",
           style: GoogleFonts.poppins(
             fontSize: 20.sp,
             fontWeight: FontWeight.w700,
@@ -117,10 +113,8 @@ class ForgotPasswordView extends StatelessWidget {
         SizedBox(height: 4.h),
         Text(
           c.currentStep.value == 0
-              ? "আপনার মোবাইল নম্বর দিয়ে OTP পাঠানো হবে"
-              : c.currentStep.value == 1
-                  ? "আপনার মোবাইলে পাঠানো OTP টি দিন"
-                  : "আপনার নতুন পাসওয়ার্ড দুবার দিন",
+              ? "Enter your mobile number"
+              : "Enter your new password twice",
           textAlign: TextAlign.center,
           style: GoogleFonts.poppins(
             fontSize: 12.sp,
@@ -132,7 +126,7 @@ class ForgotPasswordView extends StatelessWidget {
         // Progress dots
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(3, (i) {
+          children: List.generate(2, (i) {
             final isActive = i <= c.currentStep.value;
             final isCurrent = i == c.currentStep.value;
             return GestureDetector(
@@ -210,7 +204,7 @@ class ForgotPasswordView extends StatelessWidget {
                 color: AppColor.buttonTwoColor,
                 size: 20.sp,
               ),
-              hintText: "মোবাইল নম্বর",
+              hintText: "Mobile Number",
               hintStyle: GoogleFonts.poppins(
                 color: AppColor.textLight,
                 fontSize: 13.sp,
@@ -236,7 +230,7 @@ class ForgotPasswordView extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
 
-          // Send OTP Button
+          // Continue Button
           Obx(() {
             if (c.isLoading.value) {
               return ShimmerWidget.button(height: 44);
@@ -245,7 +239,7 @@ class ForgotPasswordView extends StatelessWidget {
               width: double.infinity,
               height: 44.h,
               child: ElevatedButton(
-                onPressed: c.sendOtp,
+                onPressed: c.submitPhone,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColor.buttonTwoColor,
                   elevation: 2,
@@ -256,7 +250,7 @@ class ForgotPasswordView extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  "OTP পাঠান",
+                  "Next",
                   style: GoogleFonts.poppins(
                     color: AppColor.textOnPrimary,
                     fontSize: 14.sp,
@@ -272,149 +266,9 @@ class ForgotPasswordView extends StatelessWidget {
     );
   }
 
-  // ───────────────────────────────────────────────
-  //  STEP 1: OTP VERIFICATION
-  // ───────────────────────────────────────────────
-
-  Widget _buildOtpStep(ForgotPasswordController c) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.r),
-      decoration: BoxDecoration(
-        color: AppColor.cardColor,
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [AppColor.cardShadow],
-      ),
-      child: Column(
-        children: [
-          // OTP icon
-          Container(
-            padding: EdgeInsets.all(12.r),
-            decoration: BoxDecoration(
-              color: AppColor.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14.r),
-            ),
-            child: Icon(
-              Icons.sms_rounded,
-              color: AppColor.success,
-              size: 28.sp,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Text(
-            "OTP এসেছে ${c.phoneController.text} নম্বরে",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 11.sp,
-              color: AppColor.textSecondary,
-            ),
-          ),
-          SizedBox(height: 16.h),
-
-          // OTP field
-          TextField(
-            controller: c.otpController,
-            keyboardType: TextInputType.number,
-            maxLength: 6,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 8,
-            ),
-            decoration: InputDecoration(
-              counterText: "",
-              hintText: "- - - - - -",
-              hintStyle: GoogleFonts.poppins(
-                color: AppColor.textLight,
-                fontSize: 20.sp,
-                letterSpacing: 8,
-              ),
-              filled: true,
-              fillColor: AppColor.backgroundColorLight,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 14.w,
-                vertical: 12.h,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(
-                  color: AppColor.success,
-                  width: 1.2,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 16.h),
-
-          // Verify OTP Button
-          Obx(() {
-            if (c.isLoading.value) {
-              return ShimmerWidget.button(height: 44);
-            }
-            return SizedBox(
-              width: double.infinity,
-              height: 44.h,
-              child: ElevatedButton(
-                onPressed: c.verifyOtp,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.buttonTwoColor,
-                  elevation: 2,
-                  shadowColor:
-                      AppColor.buttonTwoColor.withValues(alpha: 0.3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22.r),
-                  ),
-                ),
-                child: Text(
-                  "OTP যাচাই করুন",
-                  style: GoogleFonts.poppins(
-                    color: AppColor.textOnPrimary,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            );
-          }),
-
-          SizedBox(height: 12.h),
-
-          // Resend OTP
-          GestureDetector(
-            onTap: () => c.sendOtp(),
-            child: RichText(
-              text: TextSpan(
-                text: "OTP না পেয়েছেন? ",
-                style: GoogleFonts.poppins(
-                  color: AppColor.textSecondary,
-                  fontSize: 12.sp,
-                ),
-                children: [
-                  TextSpan(
-                    text: "পুনরায় পাঠান",
-                    style: GoogleFonts.poppins(
-                      color: AppColor.buttonOneColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ───────────────────────────────────────────────
-  //  STEP 2: RESET PASSWORD
+  //  STEP 1: RESET PASSWORD
   // ───────────────────────────────────────────────
 
   Widget _buildResetStep(ForgotPasswordController c) {
@@ -456,7 +310,7 @@ class ForgotPasswordView extends StatelessWidget {
                       color: AppColor.buttonTwoColor,
                       size: 20.sp,
                     ),
-                    hintText: "নতুন পাসওয়ার্ড",
+                    hintText: "New Password",
                     hintStyle: GoogleFonts.poppins(
                       color: AppColor.textLight,
                       fontSize: 13.sp,
@@ -505,7 +359,7 @@ class ForgotPasswordView extends StatelessWidget {
                       color: AppColor.buttonTwoColor,
                       size: 20.sp,
                     ),
-                    hintText: "পাসওয়ার্ড নিশ্চিত করুন",
+                    hintText: "Confirm Password",
                     hintStyle: GoogleFonts.poppins(
                       color: AppColor.textLight,
                       fontSize: 13.sp,
@@ -551,7 +405,7 @@ class ForgotPasswordView extends StatelessWidget {
               ),
               SizedBox(width: 6.w),
               Text(
-                "কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন",
+                "Password must be at least 6 characters",
                 style: GoogleFonts.poppins(
                   fontSize: 10.sp,
                   color: AppColor.textLight,
@@ -582,7 +436,7 @@ class ForgotPasswordView extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  "পাসওয়ার্ড রিসেট করুন",
+                  "Reset Password",
                   style: GoogleFonts.poppins(
                     color: AppColor.textOnPrimary,
                     fontSize: 14.sp,

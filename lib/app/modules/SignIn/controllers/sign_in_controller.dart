@@ -28,8 +28,10 @@ class SignInController extends GetxController {
       log("Response: ${responses.data}");
 
       if (responses.data['status'] == true) {
-        getBox.write(IS_USER_LOGGED_IN, true);
-        getBox.write(USER_ID, responses.data['user']['id'].toString());
+        // Await so the session is flushed to disk before navigating —
+        // otherwise a quick app kill/refresh can lose the login state.
+        await getBox.write(IS_USER_LOGGED_IN, true);
+        await getBox.write(USER_ID, responses.data['user']['id'].toString());
 
         log("IS_USER_LOGGED_IN: ${getBox.read(IS_USER_LOGGED_IN)}");
         log("USER_ID: ${getBox.read(USER_ID)}");
