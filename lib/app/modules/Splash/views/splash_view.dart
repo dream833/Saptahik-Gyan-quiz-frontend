@@ -102,7 +102,7 @@ class SplashView extends StatelessWidget {
                           ),
                           child: ClipOval(
                             child: Image.asset(
-                              'assets/images/splashs.png',
+                              'assets/images/logo.png',
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(

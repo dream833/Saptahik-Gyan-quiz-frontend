@@ -60,16 +60,18 @@ class ForgotPasswordController extends GetxController {
 
       // Hit the API — only on success is the password actually updated
       final response = await dioPost(
-        endUrl: "/forgotpass.php",
+        endUrl: "/forget.php",
         data: {
-          "phone": getBox.read(FORGOTFIELD),
-          "password": newPass,
-          "action": "reset_password",
+          "mobile": getBox.read(FORGOTFIELD),
+          "new_password": newPass,
         },
       );
 
-      if (response.data['message'] == "Password reset successfully") {
-        Showsnackbar(message: "Password reset successfully", isSuccess: true);
+      if (response.data['status'] == true) {
+        Showsnackbar(
+          message: response.data['message'] ?? "Password reset successfully",
+          isSuccess: true,
+        );
 
         // Clear stored data
         getBox.remove(FORGOTFIELD);
