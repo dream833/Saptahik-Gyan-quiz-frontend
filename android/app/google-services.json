@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:509494487420:android:b063038ec29fb408efdcf9",
+        "android_client_info": {
+          "package_name": "com.dream.quiz.quiz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4zgGp_AnblaUqGxlIOpYFtPA4cX-MYbE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:509494487420:android:acc95badfca89afdefdcf9",
         "android_client_info": {
           "package_name": "com.dream.quiz.wbpathshala"

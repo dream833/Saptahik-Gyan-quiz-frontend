@@ -16,13 +16,14 @@ class TestScreenController extends GetxController {
   // Timer
   var totalSeconds = 200;
   var remainingSeconds = 200.obs;
-  late Timer _timer;
+  Timer? _timer;
   var isTimerRunning = false.obs;
 
   // Questions
   var questions = <Question>[].obs;
   var currentQuestionIndex = 0.obs;
-  var selectedAnswers = <int, int>{}.obs; // question index -> selected option index
+  var selectedAnswers =
+      <int, int>{}.obs; // question index -> selected option index
 
   // Results
   var isTestCompleted = false.obs;
@@ -80,6 +81,7 @@ class TestScreenController extends GetxController {
   }
 
   void _startTimer() {
+    _timer?.cancel();
     isTimerRunning.value = true;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remainingSeconds.value > 0) {
@@ -96,13 +98,15 @@ class TestScreenController extends GetxController {
     return '$minutes:$seconds';
   }
 
-  double get progressValue => totalSeconds > 0 ? remainingSeconds.value / totalSeconds : 0;
+  double get progressValue =>
+      totalSeconds > 0 ? remainingSeconds.value / totalSeconds : 0;
 
   int get totalQuestions => questions.length;
 
   Question get currentQuestion => questions[currentQuestionIndex.value];
 
-  int? get selectedAnswerForCurrent => selectedAnswers[currentQuestionIndex.value];
+  int? get selectedAnswerForCurrent =>
+      selectedAnswers[currentQuestionIndex.value];
 
   bool get isLastQuestion => currentQuestionIndex.value == totalQuestions - 1;
 
@@ -143,7 +147,8 @@ class TestScreenController extends GetxController {
   }
 
   void _submitTest() {
-    _timer.cancel();
+    _timer?.cancel();
+    _timer = null;
     isTimerRunning.value = false;
     timeTaken.value = totalSeconds - remainingSeconds.value;
 
@@ -196,11 +201,7 @@ class TestScreenController extends GetxController {
 
       final response = await dioPost(
         endUrl: "/submit-mocktest.php",
-        data: {
-          "user_id": userId,
-          "test_id": testId,
-          "answers": answers,
-        },
+        data: {"user_id": userId, "test_id": testId, "answers": answers},
       );
 
       log("Submit Test Response: ${response.data}");
@@ -260,7 +261,9 @@ class TestScreenController extends GetxController {
                             gradient: AppColor.primaryGradient,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColor.buttonOneColor.withValues(alpha: 0.3),
+                                color: AppColor.buttonOneColor.withValues(
+                                  alpha: 0.3,
+                                ),
                                 blurRadius: 16,
                                 offset: const Offset(0, 6),
                               ),
@@ -306,10 +309,7 @@ class TestScreenController extends GetxController {
                   SizedBox(height: 20.h),
 
                   // Divider
-                  Container(
-                    height: 1.h,
-                    color: AppColor.cardBorder,
-                  ),
+                  Container(height: 1.h, color: AppColor.cardBorder),
 
                   SizedBox(height: 20.h),
 
@@ -331,9 +331,7 @@ class TestScreenController extends GetxController {
                                   // Navigate to answer review, replacing TestScreen
                                   // so pressing back goes to Available Tests
                                   Get.off(
-                                    () => _AnswerReviewScreen(
-                                      controller: this,
-                                    ),
+                                    () => _AnswerReviewScreen(controller: this),
                                   );
                                 },
                               ),
@@ -463,7 +461,8 @@ class TestScreenController extends GetxController {
     if (optionIndex == question.correctIndex) {
       return AppColor.success;
     }
-    if (selectedAnswers[questionIndex] == optionIndex && optionIndex != question.correctIndex) {
+    if (selectedAnswers[questionIndex] == optionIndex &&
+        optionIndex != question.correctIndex) {
       return AppColor.error;
     }
     return Colors.transparent;
@@ -481,7 +480,8 @@ class TestScreenController extends GetxController {
     if (optionIndex == question.correctIndex) {
       return Colors.white;
     }
-    if (selectedAnswers[questionIndex] == optionIndex && optionIndex != question.correctIndex) {
+    if (selectedAnswers[questionIndex] == optionIndex &&
+        optionIndex != question.correctIndex) {
       return Colors.white;
     }
     return AppColor.textPrimary;
@@ -498,9 +498,8 @@ class TestScreenController extends GetxController {
 
   @override
   void onClose() {
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
+    _timer?.cancel();
+    _timer = null;
     super.onClose();
   }
 }
@@ -574,8 +573,8 @@ class _AnswerReviewScreen extends StatelessWidget {
                         color: isUnanswered
                             ? AppColor.textLight.withValues(alpha: 0.3)
                             : isCorrect
-                                ? AppColor.success.withValues(alpha: 0.3)
-                                : AppColor.error.withValues(alpha: 0.3),
+                            ? AppColor.success.withValues(alpha: 0.3)
+                            : AppColor.error.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Column(
@@ -584,13 +583,16 @@ class _AnswerReviewScreen extends StatelessWidget {
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 10.w,
+                                vertical: 4.h,
+                              ),
                               decoration: BoxDecoration(
                                 color: isUnanswered
                                     ? AppColor.textLight.withValues(alpha: 0.1)
                                     : isCorrect
-                                        ? AppColor.success.withValues(alpha: 0.1)
-                                        : AppColor.error.withValues(alpha: 0.1),
+                                    ? AppColor.success.withValues(alpha: 0.1)
+                                    : AppColor.error.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: Text(
@@ -601,8 +603,8 @@ class _AnswerReviewScreen extends StatelessWidget {
                                   color: isUnanswered
                                       ? AppColor.textLight
                                       : isCorrect
-                                          ? AppColor.success
-                                          : AppColor.error,
+                                      ? AppColor.success
+                                      : AppColor.error,
                                 ),
                               ),
                             ),
@@ -612,7 +614,9 @@ class _AnswerReviewScreen extends StatelessWidget {
                                 isCorrect
                                     ? Icons.check_circle_rounded
                                     : Icons.cancel_rounded,
-                                color: isCorrect ? AppColor.success : AppColor.error,
+                                color: isCorrect
+                                    ? AppColor.success
+                                    : AppColor.error,
                                 size: 18.sp,
                               ),
                           ],
@@ -633,20 +637,23 @@ class _AnswerReviewScreen extends StatelessWidget {
 
                           return Container(
                             margin: EdgeInsets.only(bottom: 6.h),
-                            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 8.h,
+                            ),
                             decoration: BoxDecoration(
                               color: isRight
                                   ? AppColor.success.withValues(alpha: 0.1)
                                   : isSelected && !isRight
-                                      ? AppColor.error.withValues(alpha: 0.1)
-                                      : Colors.transparent,
+                                  ? AppColor.error.withValues(alpha: 0.1)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(10.r),
                               border: Border.all(
                                 color: isRight
                                     ? AppColor.success.withValues(alpha: 0.5)
                                     : isSelected && !isRight
-                                        ? AppColor.error.withValues(alpha: 0.5)
-                                        : Colors.transparent,
+                                    ? AppColor.error.withValues(alpha: 0.5)
+                                    : Colors.transparent,
                               ),
                             ),
                             child: Row(
@@ -655,14 +662,14 @@ class _AnswerReviewScreen extends StatelessWidget {
                                   isRight
                                       ? Icons.check_circle_rounded
                                       : isSelected && !isRight
-                                          ? Icons.cancel_rounded
-                                          : Icons.radio_button_unchecked_rounded,
+                                      ? Icons.cancel_rounded
+                                      : Icons.radio_button_unchecked_rounded,
                                   size: 14.sp,
                                   color: isRight
                                       ? AppColor.success
                                       : isSelected && !isRight
-                                          ? AppColor.error
-                                          : AppColor.textLight,
+                                      ? AppColor.error
+                                      : AppColor.textLight,
                                 ),
                                 SizedBox(width: 10.w),
                                 Text(
@@ -672,9 +679,10 @@ class _AnswerReviewScreen extends StatelessWidget {
                                     color: isRight
                                         ? AppColor.success
                                         : isSelected && !isRight
-                                            ? AppColor.error
-                                            : AppColor.textPrimary,
-                                    fontWeight: isRight || (isSelected && !isRight)
+                                        ? AppColor.error
+                                        : AppColor.textPrimary,
+                                    fontWeight:
+                                        isRight || (isSelected && !isRight)
                                         ? FontWeight.w600
                                         : FontWeight.w400,
                                   ),
