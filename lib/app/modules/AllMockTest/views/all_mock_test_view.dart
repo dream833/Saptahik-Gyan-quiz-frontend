@@ -53,7 +53,7 @@ class AllMockTestView extends StatelessWidget {
             ),
             SizedBox(width: 10.w),
             Text(
-              'All Mock Tests',
+              'M.C.Q Questions Bank',
               style: GoogleFonts.poppins(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w700,

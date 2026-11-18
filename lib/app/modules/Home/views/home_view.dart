@@ -832,14 +832,6 @@ class HomeView extends StatelessWidget {
 
             // Drawer Items
             _drawerItem(
-              icon: Icons.dashboard_rounded,
-              title: "Dashboard",
-              onTap: () {
-                Navigator.pop(context);
-                controller.changeTab(0);
-              },
-            ),
-            _drawerItem(
               icon: Icons.quiz_rounded,
               title: "Daily Mock Test",
               onTap: () {
@@ -849,10 +841,28 @@ class HomeView extends StatelessWidget {
             ),
             _drawerItem(
               icon: Icons.list_alt_rounded,
-              title: "All Mock Tests",
+              title: "M.C.Q Questions Bank",
               onTap: () {
                 Navigator.pop(context);
                 Get.toNamed('/all-mock-tests');
+              },
+            ),
+            _drawerItem(
+              icon: Icons.share_rounded,
+              title: "Share",
+              onTap: () {
+                Navigator.pop(context);
+                const appLink = 'https://saptahikgyan.space/quizadmin';
+                Clipboard.setData(const ClipboardData(text: appLink));
+                Showsnackbar(message: 'App link copied to clipboard!', isSuccess: true);
+              },
+            ),
+            _drawerItem(
+              icon: Icons.star_rate_rounded,
+              title: "Rating",
+              onTap: () {
+                Navigator.pop(context);
+                _showRatingDialog(context);
               },
             ),
             const Spacer(),
@@ -1015,6 +1025,140 @@ class HomeView extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showRatingDialog(BuildContext context) {
+    int selectedStars = 5;
+    Get.dialog(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return Dialog(
+            backgroundColor: AppColor.cardColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24.r),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(24.r),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 56.r,
+                    height: 56.r,
+                    decoration: BoxDecoration(
+                      color: AppColor.buttonOneColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.star_rounded,
+                      color: AppColor.buttonOneColor,
+                      size: 32.sp,
+                    ),
+                  ),
+                  SizedBox(height: 14.h),
+                  Text(
+                    "Rate WB Pathshala",
+                    style: GoogleFonts.poppins(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: AppColor.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(
+                    "How was your learning experience?",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12.sp,
+                      color: AppColor.textSecondary,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      final star = index + 1;
+                      return IconButton(
+                        icon: Icon(
+                          star <= selectedStars
+                              ? Icons.star_rounded
+                              : Icons.star_outline_rounded,
+                          color: star <= selectedStars
+                              ? const Color(0xFFFFB800)
+                              : Colors.grey.shade400,
+                          size: 32.sp,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            selectedStars = star;
+                          });
+                        },
+                      );
+                    }),
+                  ),
+                  SizedBox(height: 20.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => Get.back(),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            decoration: BoxDecoration(
+                              color: AppColor.shimmerBase,
+                              borderRadius: BorderRadius.circular(14.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Cancel",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.textPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.back();
+                            Showsnackbar(
+                              message: 'Thank you for your rating!',
+                              isSuccess: true,
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 12.h),
+                            decoration: BoxDecoration(
+                              gradient: AppColor.primaryGradient,
+                              borderRadius: BorderRadius.circular(14.r),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Submit",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -1287,7 +1431,7 @@ class HomeView extends StatelessWidget {
                       ),
                       SizedBox(height: 2.h),
                       Text(
-                        "Attempt today's quiz challenge",
+                        "Attempt today's Mock challenge",
                         style: GoogleFonts.poppins(
                           fontSize: 11.sp,
                           color: Colors.white70,
@@ -1348,7 +1492,7 @@ class HomeView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "All Mock Tests",
+                        "M.C.Q Questions Bank",
                         style: GoogleFonts.poppins(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,

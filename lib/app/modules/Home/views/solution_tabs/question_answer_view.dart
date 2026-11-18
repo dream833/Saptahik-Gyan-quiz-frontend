@@ -434,8 +434,6 @@ class _QuestionAnswerBody extends StatelessWidget {
             child: Center(child: Text(cl.grade, style: GoogleFonts.poppins(fontSize: 20.sp, fontWeight: FontWeight.w700, color: Colors.white)))),
           SizedBox(height: 8.h),
           Text(cl.name, textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary)),
-          SizedBox(height: 2.h),
-          Text('Subjects', style: GoogleFonts.poppins(fontSize: 10.sp, color: AppColor.textSecondary)),
         ]),
       ),
     );
@@ -661,13 +659,23 @@ class _QuestionAnswerBody extends StatelessWidget {
           decoration: BoxDecoration(color: AppColor.buttonOneColor.withValues(alpha: 0.04), borderRadius: const BorderRadius.vertical(top: Radius.circular(16))),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(margin: EdgeInsets.only(top: 2.h, right: 10.w),
-              child: Icon(Icons.help_rounded, color: AppColor.buttonOneColor, size: 18.sp)),
-            Expanded(child: Text(item.question, style: GoogleFonts.poppins(fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary, height: 1.4))),
+              child: Icon(Icons.help_rounded, color: AppColor.buttonOneColor, size: 20.sp)),
+            Expanded(child: Text(item.question, style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w600, color: AppColor.textPrimary, height: 1.45))),
+            SizedBox(width: 8.w),
             GestureDetector(
-              onTap: () => _copyText(item.question, 'Question'),
-              child: Container(padding: EdgeInsets.all(6.r),
-                decoration: BoxDecoration(color: AppColor.buttonOneColor.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8.r)),
-                child: Icon(Icons.copy_rounded, color: AppColor.buttonOneColor, size: 16.sp)),
+              onTap: () => _copyQA(item),
+              child: Container(
+                padding: EdgeInsets.all(7.r),
+                decoration: BoxDecoration(
+                  color: AppColor.buttonOneColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Icon(
+                  Icons.copy_rounded,
+                  color: AppColor.buttonOneColor,
+                  size: 18.sp,
+                ),
+              ),
             ),
           ]),
         ),
@@ -677,28 +685,23 @@ class _QuestionAnswerBody extends StatelessWidget {
           padding: EdgeInsets.all(14.r),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(margin: EdgeInsets.only(top: 2.h, right: 10.w),
-              child: Icon(Icons.check_circle_rounded, color: AppColor.success, size: 18.sp)),
-            Expanded(child: Text(item.answer, style: GoogleFonts.poppins(fontSize: 12.sp, color: AppColor.textSecondary, height: 1.6))),
-            GestureDetector(
-              onTap: () => _copyText(item.answer, 'Answer'),
-              child: Container(padding: EdgeInsets.all(6.r),
-                decoration: BoxDecoration(color: AppColor.success.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8.r)),
-                child: Icon(Icons.copy_rounded, color: AppColor.success, size: 16.sp)),
-            ),
+              child: Icon(Icons.check_circle_rounded, color: AppColor.success, size: 20.sp)),
+            Expanded(child: Text(item.answer, style: GoogleFonts.poppins(fontSize: 14.sp, color: AppColor.textSecondary, height: 1.6))),
           ]),
         ),
       ]),
     );
   }
 
-  void _copyText(String text, String label) {
+  void _copyQA(QAItem item) {
+    final text = 'Question: ${item.question}\n\nAnswer: ${item.answer}';
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(Get.context!).showSnackBar(
       SnackBar(
         content: Row(children: [
           Icon(Icons.check_rounded, color: Colors.white, size: 18.sp),
           SizedBox(width: 8.w),
-          Text('$label copied!', style: GoogleFonts.poppins(fontSize: 12.sp)),
+          Text('Question & Answer copied!', style: GoogleFonts.poppins(fontSize: 12.sp)),
         ]),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
