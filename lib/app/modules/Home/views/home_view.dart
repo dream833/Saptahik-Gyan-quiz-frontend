@@ -7,10 +7,12 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:upgrader/upgrader.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/config/app_cons.dart';
 import '../../../data/config/appcolor.dart';
+import '../../../data/function/app_update_service.dart';
 import '../../../data/function/fcm_service.dart';
 import '../../../data/models/mock_data.dart';
 import '../../../data/widgets/decorative_background.dart';
@@ -24,17 +26,29 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     Get.put(HomeController());
     final controller = Get.find<HomeController>();
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) return;
-        _showExitDialog(context);
-      },
-      child: Scaffold(
-        backgroundColor: AppColor.backgroundColor,
-        drawer: _buildDrawer(context, controller),
-        body: _buildBody(context, controller),
-        bottomNavigationBar: _buildBottomNav(controller),
+
+    // Check for Google Play in-app update
+    AppUpdateService.checkPlayStoreUpdate();
+
+    return UpgradeAlert(
+      upgrader: Upgrader(
+        durationUntilAlertAgain: const Duration(hours: 2),
+      ),
+      dialogStyle: UpgradeDialogStyle.material,
+      showIgnore: false,
+      showLater: true,
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) return;
+          _showExitDialog(context);
+        },
+        child: Scaffold(
+          backgroundColor: AppColor.backgroundColor,
+          drawer: _buildDrawer(context, controller),
+          body: _buildBody(context, controller),
+          bottomNavigationBar: _buildBottomNav(controller),
+        ),
       ),
     );
   }

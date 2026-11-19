@@ -2,4 +2,5 @@
 <resources>
     <!-- Matches AppColor.backgroundColor (0xFFFDF6EC) for a seamless splash -->
     <color name="splash_background">#FDF6EC</color>
+	<color name="ic_launcher_background">#FDF6EC</color>
 </resources>
