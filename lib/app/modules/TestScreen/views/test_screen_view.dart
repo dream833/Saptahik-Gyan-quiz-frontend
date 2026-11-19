@@ -262,7 +262,7 @@ class TestScreenView extends StatelessWidget {
               child: Text(
                 question.text,
                 style: GoogleFonts.poppins(
-                  fontSize: 15.sp,
+                  fontSize: 17.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColor.textPrimary,
                   height: 1.5,
@@ -298,8 +298,8 @@ class TestScreenView extends StatelessWidget {
                       children: [
                         // Option letter
                         Container(
-                          width: 32.r,
-                          height: 32.r,
+                          width: 36.r,
+                          height: 36.r,
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColor.buttonOneColor
@@ -310,7 +310,7 @@ class TestScreenView extends StatelessWidget {
                             child: Text(
                               String.fromCharCode(65 + index),
                               style: GoogleFonts.poppins(
-                                fontSize: 13.sp,
+                                fontSize: 15.sp,
                                 fontWeight: FontWeight.w700,
                                 color: isSelected ? Colors.white : AppColor.textPrimary,
                               ),
@@ -322,9 +322,10 @@ class TestScreenView extends StatelessWidget {
                           child: Text(
                             question.options[index],
                             style: GoogleFonts.poppins(
-                              fontSize: 14.sp,
+                              fontSize: 15.5.sp,
                               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                               color: isSelected ? AppColor.buttonOneColor : AppColor.textPrimary,
+                              height: 1.4,
                             ),
                           ),
                         ),
@@ -332,7 +333,7 @@ class TestScreenView extends StatelessWidget {
                           Icon(
                             Icons.check_circle_rounded,
                             color: AppColor.buttonOneColor,
-                            size: 20.sp,
+                            size: 22.sp,
                           ),
                       ],
                     ),

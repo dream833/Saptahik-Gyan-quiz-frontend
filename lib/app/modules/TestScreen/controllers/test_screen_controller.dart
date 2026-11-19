@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../data/config/app_cons.dart';
 import '../../../data/config/appcolor.dart';
@@ -443,9 +443,13 @@ class TestScreenController extends GetxController {
   }
 
   void shareApp() {
-    final appLink = 'https://saptahikgyan.space/quizadmin';
-    Clipboard.setData(ClipboardData(text: appLink));
-    Showsnackbar(message: 'App link copied to clipboard!', isSuccess: true);
+    SharePlus.instance.share(
+      ShareParams(
+        text:
+            'WB Pathshala - পশ্চিমবঙ্গ মধ্যশিক্ষা পর্ষদ এবং উচ্চমাধ্যমিকের সেরা শিক্ষামূলক অ্যাপ। এখনই ডাউনলোড করুন: https://play.google.com/store/apps/details?id=com.dream.quiz.quiz',
+        subject: 'WB Pathshala App',
+      ),
+    );
   }
 
   Color getAnswerColor(int questionIndex, int optionIndex) {
@@ -625,9 +629,10 @@ class _AnswerReviewScreen extends StatelessWidget {
                         Text(
                           question.text,
                           style: GoogleFonts.poppins(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
                             color: AppColor.textPrimary,
+                            height: 1.45,
                           ),
                         ),
                         SizedBox(height: 10.h),
@@ -638,8 +643,8 @@ class _AnswerReviewScreen extends StatelessWidget {
                           return Container(
                             margin: EdgeInsets.only(bottom: 6.h),
                             padding: EdgeInsets.symmetric(
-                              horizontal: 12.w,
-                              vertical: 8.h,
+                              horizontal: 14.w,
+                              vertical: 10.h,
                             ),
                             decoration: BoxDecoration(
                               color: isRight
@@ -664,7 +669,7 @@ class _AnswerReviewScreen extends StatelessWidget {
                                       : isSelected && !isRight
                                       ? Icons.cancel_rounded
                                       : Icons.radio_button_unchecked_rounded,
-                                  size: 14.sp,
+                                  size: 18.sp,
                                   color: isRight
                                       ? AppColor.success
                                       : isSelected && !isRight
@@ -672,19 +677,22 @@ class _AnswerReviewScreen extends StatelessWidget {
                                       : AppColor.textLight,
                                 ),
                                 SizedBox(width: 10.w),
-                                Text(
-                                  question.options[optIndex],
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12.sp,
-                                    color: isRight
-                                        ? AppColor.success
-                                        : isSelected && !isRight
-                                        ? AppColor.error
-                                        : AppColor.textPrimary,
-                                    fontWeight:
-                                        isRight || (isSelected && !isRight)
-                                        ? FontWeight.w600
-                                        : FontWeight.w400,
+                                Expanded(
+                                  child: Text(
+                                    question.options[optIndex],
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14.5.sp,
+                                      color: isRight
+                                          ? AppColor.success
+                                          : isSelected && !isRight
+                                          ? AppColor.error
+                                          : AppColor.textPrimary,
+                                      fontWeight:
+                                          isRight || (isSelected && !isRight)
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
+                                      height: 1.4,
+                                    ),
                                   ),
                                 ),
                               ],

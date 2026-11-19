@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/config/app_cons.dart';
 import '../../../data/config/appcolor.dart';
@@ -852,17 +854,36 @@ class HomeView extends StatelessWidget {
               title: "Share",
               onTap: () {
                 Navigator.pop(context);
-                const appLink = 'https://saptahikgyan.space/quizadmin';
-                Clipboard.setData(const ClipboardData(text: appLink));
-                Showsnackbar(message: 'App link copied to clipboard!', isSuccess: true);
+                SharePlus.instance.share(
+                  ShareParams(
+                    text:
+                        'WB Pathshala - পশ্চিমবঙ্গ মধ্যশিক্ষা পর্ষদ এবং উচ্চমাধ্যমিকের সেরা শিক্ষামূলক অ্যাপ। এখনই ডাউনলোড করুন: https://play.google.com/store/apps/details?id=com.dream.quiz.quiz',
+                    subject: 'WB Pathshala App',
+                  ),
+                );
               },
             ),
             _drawerItem(
               icon: Icons.star_rate_rounded,
               title: "Rating",
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                _showRatingDialog(context);
+                final Uri playStoreUri =
+                    Uri.parse("market://details?id=com.dream.quiz.quiz");
+                final Uri webPlayStoreUri = Uri.parse(
+                    "https://play.google.com/store/apps/details?id=com.dream.quiz.quiz");
+                try {
+                  if (await canLaunchUrl(playStoreUri)) {
+                    await launchUrl(playStoreUri,
+                        mode: LaunchMode.externalApplication);
+                  } else {
+                    await launchUrl(webPlayStoreUri,
+                        mode: LaunchMode.externalApplication);
+                  }
+                } catch (e) {
+                  await launchUrl(webPlayStoreUri,
+                      mode: LaunchMode.externalApplication);
+                }
               },
             ),
             const Spacer(),
@@ -1025,140 +1046,6 @@ class HomeView extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showRatingDialog(BuildContext context) {
-    int selectedStars = 5;
-    Get.dialog(
-      StatefulBuilder(
-        builder: (context, setState) {
-          return Dialog(
-            backgroundColor: AppColor.cardColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24.r),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(24.r),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 56.r,
-                    height: 56.r,
-                    decoration: BoxDecoration(
-                      color: AppColor.buttonOneColor.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.star_rounded,
-                      color: AppColor.buttonOneColor,
-                      size: 32.sp,
-                    ),
-                  ),
-                  SizedBox(height: 14.h),
-                  Text(
-                    "Rate WB Pathshala",
-                    style: GoogleFonts.poppins(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                      color: AppColor.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 6.h),
-                  Text(
-                    "How was your learning experience?",
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12.sp,
-                      color: AppColor.textSecondary,
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(5, (index) {
-                      final star = index + 1;
-                      return IconButton(
-                        icon: Icon(
-                          star <= selectedStars
-                              ? Icons.star_rounded
-                              : Icons.star_outline_rounded,
-                          color: star <= selectedStars
-                              ? const Color(0xFFFFB800)
-                              : Colors.grey.shade400,
-                          size: 32.sp,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            selectedStars = star;
-                          });
-                        },
-                      );
-                    }),
-                  ),
-                  SizedBox(height: 20.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Get.back(),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 12.h),
-                            decoration: BoxDecoration(
-                              color: AppColor.shimmerBase,
-                              borderRadius: BorderRadius.circular(14.r),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Cancel",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColor.textPrimary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            Get.back();
-                            Showsnackbar(
-                              message: 'Thank you for your rating!',
-                              isSuccess: true,
-                            );
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 12.h),
-                            decoration: BoxDecoration(
-                              gradient: AppColor.primaryGradient,
-                              borderRadius: BorderRadius.circular(14.r),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Submit",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
       ),
     );
   }
